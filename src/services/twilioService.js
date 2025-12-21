@@ -6,17 +6,25 @@ class TwilioService {
     this.accountSid = process.env.TWILIO_ACCOUNT_SID;
     this.authToken = process.env.TWILIO_AUTH_TOKEN;
     this.whatsappFrom = process.env.TWILIO_WHATSAPP_FROM;
+    this.mockMode = false;
 
     // Validate required environment variables
     if (!this.accountSid || !this.authToken || !this.whatsappFrom) {
-      throw new Error('Twilio credentials are not properly configured in environment variables');
+      console.log('⚠️  Twilio credentials not set - using MOCK mode (FREE)');
+      console.log('   For production WhatsApp, set: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM');
+      this.mockMode = true;
+      return;
     }
 
     // Initialize Twilio client
-    this.client = twilio(this.accountSid, this.authToken);
-
-    console.log('✅ Twilio service initialized');
-    console.log(`   WhatsApp From: ${this.whatsappFrom}`);
+    try {
+      this.client = twilio(this.accountSid, this.authToken);
+      console.log('✅ Twilio service initialized');
+      console.log(`   WhatsApp From: ${this.whatsappFrom}`);
+    } catch (error) {
+      console.error('❌ Failed to initialize Twilio, using MOCK mode');
+      this.mockMode = true;
+    }
   }
 
   /**
@@ -26,6 +34,21 @@ class TwilioService {
    * @returns {object} Twilio message response
    */
   async sendWhatsAppMessage(to, message) {
+    // Mock mode - just log, don't actually send
+    if (this.mockMode) {
+      console.log('🤖 MOCK: Would send WhatsApp message:', {
+        to,
+        messageLength: message.length,
+        preview: message.substring(0, 100) + (message.length > 100 ? '...' : '')
+      });
+      return {
+        success: true,
+        messageSid: 'mock-sid-' + Date.now(),
+        status: 'mock-sent',
+        mock: true
+      };
+    }
+
     try {
       console.log('📤 Sending WhatsApp message:', {
         to,

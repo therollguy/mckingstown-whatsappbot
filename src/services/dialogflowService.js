@@ -4,10 +4,13 @@ const { v4: uuidv4 } = require('uuid');
 class DialogflowService {
   constructor() {
     this.projectId = process.env.DIALOGFLOW_PROJECT_ID;
+    this.mockMode = false;
     
-    // Validate required environment variables
+    // Check if Dialogflow is configured
     if (!this.projectId) {
-      throw new Error('DIALOGFLOW_PROJECT_ID is not set in environment variables');
+      console.log('⚠️  DIALOGFLOW_PROJECT_ID not set - using MOCK mode (FREE)');
+      this.mockMode = true;
+      return;
     }
 
     // Handle Base64 encoded credentials (for Render.com and other cloud platforms)
@@ -22,18 +25,25 @@ class DialogflowService {
         });
         
         console.log('✅ Dialogflow service initialized (Base64 credentials)');
+        console.log(`   Project ID: ${this.projectId}`);
       } catch (error) {
-        throw new Error(`Failed to parse Base64 credentials: ${error.message}`);
+        console.error('❌ Failed to parse Base64 credentials, using MOCK mode');
+        this.mockMode = true;
       }
     } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
       // Use JSON file path (for local development)
-      this.sessionClient = new dialogflow.SessionsClient();
-      console.log('✅ Dialogflow service initialized (JSON file credentials)');
+      try {
+        this.sessionClient = new dialogflow.SessionsClient();
+        console.log('✅ Dialogflow service initialized (JSON file credentials)');
+        console.log(`   Project ID: ${this.projectId}`);
+      } catch (error) {
+        console.error('❌ Failed to initialize Dialogflow, using MOCK mode');
+        this.mockMode = true;
+      }
     } else {
-      throw new Error('No Google credentials provided. Set either GOOGLE_CREDENTIALS_BASE64 or GOOGLE_APPLICATION_CREDENTIALS');
+      console.log('⚠️  No Google credentials provided - using MOCK mode (FREE)');
+      this.mockMode = true;
     }
-    
-    console.log(`   Project ID: ${this.projectId}`);
   }
 
   /**
@@ -44,6 +54,11 @@ class DialogflowService {
    * @returns {object} Dialogflow response
    */
   async detectIntent(sessionId, messageText, languageCode = 'en') {
+    // If in mock mode, return mock response
+    if (this.mockMode) {
+      return this.getMockIntent(messageText);
+    }
+
     try {
       // Create session path
       const sessionPath = this.sessionClient.projectAgentSessionPath(
@@ -95,8 +110,54 @@ class DialogflowService {
 
     } catch (error) {
       console.error('❌ Dialogflow error:', error.message);
-      throw new Error(`Dialogflow API error: ${error.message}`);
+      // Fall back to mock mode on error
+      return this.getMockIntent(messageText);
     }
+  }
+
+  /**
+   * Get mock intent response (when Dialogflow is not configured)
+   * @param {string} messageText - User's message
+   * @returns {object} Mock Dialogflow response
+   */
+  getMockIntent(messageText) {
+    const lower = messageText.toLowerCase();
+    
+    // Detect intent based on keywords
+    let intent = 'Default Fallback Intent';
+    let confidence = 0.5;
+    
+    if (lower.match(/\b(hi|hello|hey|greet)\b/)) {
+      intent = 'Welcome';
+      confidence = 0.8;
+    } else if (lower.match(/\b(time|timing|hour|open|close)\b/)) {
+      intent = 'Timing';
+      confidence = 0.8;
+    } else if (lower.match(/\b(where|location|address|near|outlet)\b/)) {
+      intent = 'Location';
+      confidence = 0.8;
+    } else if (lower.match(/\b(book|appointment|schedule)\b/)) {
+      intent = 'Appointment';
+      confidence = 0.8;
+    } else if (lower.match(/\b(thank|thanks)\b/)) {
+      intent = 'Thanks';
+      confidence = 0.8;
+    } else if (lower.match(/\b(bye|goodbye)\b/)) {
+      intent = 'Goodbye';
+      confidence = 0.8;
+    }
+    
+    console.log('🤖 Mock intent:', { intent, confidence });
+    
+    return {
+      intent,
+      confidence,
+      fulfillmentText: 'Mock response',
+      parameters: {},
+      queryText: messageText,
+      allRequiredParamsPresent: true,
+      webhookPayload: null
+    };
   }
 
   /**
@@ -107,6 +168,15 @@ class DialogflowService {
    * @returns {object} Dialogflow response
    */
   async detectIntentWithEvent(sessionId, eventName, languageCode = 'en') {
+    if (this.mockMode) {
+      return {
+        intent: eventName,
+        confidence: 0.8,
+        fulfillmentText: 'Mock event response',
+        parameters: {}
+      };
+    }
+
     try {
       const sessionPath = this.sessionClient.projectAgentSessionPath(
         this.projectId,
@@ -135,7 +205,7 @@ class DialogflowService {
 
     } catch (error) {
       console.error('❌ Dialogflow event error:', error.message);
-      throw new Error(`Dialogflow event API error: ${error.message}`);
+      return this.getMockIntent(eventName);
     }
   }
 }
