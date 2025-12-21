@@ -50,13 +50,83 @@ router.post('/whatsapp', async (req, res) => {
     const messageTextLower = messageText.toLowerCase();
     let replyText;
 
-    // High confidence responses from Dialogflow for conversational intents
-    const conversationalIntents = ['Welcome', 'Default Welcome Intent', 'Timing', 'Location', 
-                                    'Appointment', 'Default Fallback Intent', 'Greeting', 
-                                    'Thanks', 'Goodbye'];
+    // PRIORITY 1: Check for explicit keywords first (before Dialogflow intent processing)
+    // This ensures "menu", "franchise", etc. always work regardless of Dialogflow interpretation
     
-    // For high-confidence conversational intents, use Dialogflow's response with enhancements
-    if (conversationalIntents.includes(intent) && confidence > 0.6) {
+    // Check for menu keyword
+    if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('all services')) {
+      replyText = ResponseGenerator.getCompleteMenu();
+    }
+    // Check for franchise keywords
+    else if (messageTextLower.match(/\b(franchise|franchisee|partner|business opportunity|investment)\b/)) {
+      // Check for specific franchise sub-queries
+      if (messageTextLower.match(/\b(investment|cost|breakup|money|capital|fund)\b/)) {
+        replyText = franchiseService.getInvestmentDetails();
+      }
+      else if (messageTextLower.match(/\b(revenue|profit|roi|return|earn|income)\b/)) {
+        replyText = franchiseService.getRevenueProjections();
+      }
+      else if (messageTextLower.match(/\b(support|help|training|assistance)\b/)) {
+        replyText = franchiseService.getSupportDetails();
+      }
+      else if (messageTextLower.match(/\b(contact|call|phone|number|reach)\b/)) {
+        replyText = franchiseService.getContactDetails();
+      }
+      // Check if location is mentioned
+      else if (messageText.match(/\b(chennai|bangalore|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra|telangana|rajasthan|west bengal)\b/i)) {
+        const location = messageText.match(/\b(chennai|bangalore|bengaluru|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|kochi|coimbatore|madurai|vijayawada|visakhapatnam|nagpur|nashik|thiruvananthapuram|mysore|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra pradesh|andhra|telangana|rajasthan|west bengal)\b/i)[0];
+        replyText = franchiseService.getLocationResponse(location);
+      }
+      else {
+        // General franchise inquiry
+        replyText = franchiseService.getOverview();
+      }
+    }
+    // Check for specific service keywords
+    else if (messageTextLower.match(/\b(haircut|hair cut|cut|hairstyle)\b/)) {
+      replyText = ResponseGenerator.getHaircutServices();
+    }
+    else if (messageTextLower.match(/\b(beard|mustache|moustache|shave|trim)\b/)) {
+      replyText = ResponseGenerator.getBeardServices();
+    }
+    else if (messageTextLower.match(/\b(facial|face care|skin care|cleanup|clean up)\b/)) {
+      replyText = ResponseGenerator.getFacialServices();
+    }
+    else if (messageTextLower.match(/\b(spa|hair spa|scalp treatment)\b/)) {
+      replyText = ResponseGenerator.getHairSpaServices();
+    }
+    else if (messageTextLower.match(/\b(color|colour|dye|highlight|streak)\b/)) {
+      replyText = ResponseGenerator.getColorServices();
+    }
+    else if (messageTextLower.match(/\b(wedding|marriage|groom package|bridal)\b/)) {
+      replyText = ResponseGenerator.getWeddingPackages();
+    }
+    else if (messageTextLower.match(/\b(massage|head massage|oil massage)\b/)) {
+      replyText = ResponseGenerator.getMassageServices();
+    }
+    else if (messageTextLower.match(/\b(makeup|grooming|event styling)\b/)) {
+      replyText = ResponseGenerator.getGroomServices();
+    }
+    else if (messageTextLower.match(/\b(book|appointment|booking|schedule|reserve)\b/)) {
+      replyText = `▸ *Book Your Appointment*
+
+I can help you book an appointment.
+
+Please share:
+1. Your preferred date & time
+2. Your city/location
+
+We'll confirm your booking shortly.`;
+    }
+    
+    // PRIORITY 2: High confidence responses from Dialogflow for conversational intents
+    else if (intent && confidence > 0.6) {
+      const conversationalIntents = ['Welcome', 'Default Welcome Intent', 'Timing', 'Location', 
+                                      'Appointment', 'Default Fallback Intent', 'Greeting', 
+                                      'Thanks', 'Goodbye'];
+    
+      // For high-confidence conversational intents, use Dialogflow's response with enhancements
+      if (conversationalIntents.includes(intent)) {
       // Use Dialogflow response but enhance if needed
       if (intent === 'Timing') {
         replyText = `▸ *McKingstown Opening Hours*
@@ -151,111 +221,11 @@ Please let me know what you're looking for, or type *"menu"* to see all services
         // Use Dialogflow's natural response
         replyText = dialogflowResponse.fulfillmentText || `How can I assist you with McKingstown services today?`;
       }
-    }
-    // Check for menu keyword
-    else if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('services')) {
-      replyText = ResponseGenerator.getCompleteMenu();
-    }
-    // Check for specific service keywords
-    else if (messageTextLower.includes('haircut') || intent === 'Haircut_Price' || intent === 'Service_Pricing') {
-      replyText = ResponseGenerator.getHaircutServices();
-    }
-    else if (messageTextLower.includes('beard') || messageTextLower.includes('shave') || intent === 'Beard_Service') {
-      replyText = ResponseGenerator.getBeardServices();
-    }
-    else if (messageTextLower.includes('facial') || messageTextLower.includes('face') || intent === 'Facial_Service') {
-      replyText = ResponseGenerator.getFacialServices();
-    }
-    else if (messageTextLower.includes('spa') || messageTextLower.includes('hair spa')) {
-      replyText = ResponseGenerator.getHairSpaServices();
-    }
-    else if (messageTextLower.includes('color') || messageTextLower.includes('colour') || messageTextLower.includes('dye')) {
-      replyText = ResponseGenerator.getColorServices();
-    }
-    else if (messageTextLower.includes('wedding') || messageTextLower.includes('package') || messageTextLower.includes('combo')) {
-      replyText = ResponseGenerator.getWeddingPackages();
-    }
-    else if (messageTextLower.includes('massage') || messageTextLower.includes('oil')) {
-      replyText = ResponseGenerator.getMassageServices();
-    }
-    else if (messageTextLower.includes('groom') || messageTextLower.includes('makeup') || messageTextLower.includes('styling')) {
-      replyText = ResponseGenerator.getGroomServices();
-    }
-    else if (intent === 'Timing') {
-      replyText = `▸ *McKingstown Opening Hours*
-
-▸ Monday - Saturday: 9:00 AM - 9:00 PM
-▸ Sunday: 10:00 AM - 8:00 PM
-
-We're here 7 days a week! Need help with anything else?`;
-    }
-    else if (intent === 'Location') {
-      replyText = `▸ *Find Your Nearest McKingstown Outlet*
-
-We have 100+ outlets across India!
-
-Please share your city name, and I'll help you find the closest branch. 🏪`;
-    }
-    else if (intent === 'Appointment' || messageTextLower.includes('book') || messageTextLower.includes('appointment')) {
-      replyText = `▸ *Book Your Appointment*
-
-Great! I can help you book an appointment.
-
-Please share:
-1. Your preferred date & time
-2. Your city/location
-
-We'll confirm your booking shortly! `;
-    }
-    else if (intent === 'Franchise_Inquiry' || messageTextLower.includes('franchise')) {
-      // Check for specific franchise keywords
-      if (messageTextLower.includes('investment') || messageTextLower.includes('cost') || messageTextLower.includes('breakup')) {
-        replyText = franchiseService.getInvestmentDetails();
-      }
-      else if (messageTextLower.includes('revenue') || messageTextLower.includes('profit') || messageTextLower.includes('roi') || messageTextLower.includes('return')) {
-        replyText = franchiseService.getRevenueProjections();
-      }
-      else if (messageTextLower.includes('support') || messageTextLower.includes('help') || messageTextLower.includes('training')) {
-        replyText = franchiseService.getSupportDetails();
-      }
-      else if (messageTextLower.includes('contact') || messageTextLower.includes('call') || messageTextLower.includes('phone')) {
-        replyText = franchiseService.getContactDetails();
-      }
-      // Check if location is mentioned
-      else if (messageText.match(/\b(chennai|bangalore|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra|telangana|rajasthan|west bengal)\b/i)) {
-        const location = messageText.match(/\b(chennai|bangalore|bengaluru|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|kochi|coimbatore|madurai|vijayawada|visakhapatnam|nagpur|nashik|thiruvananthapuram|mysore|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra pradesh|andhra|telangana|rajasthan|west bengal)\b/i)[0];
-        replyText = franchiseService.getLocationResponse(location);
-      }
-      else {
-        // General franchise inquiry
-        replyText = franchiseService.getOverview();
       }
     }
-    else if (intent === 'Welcome' || intent === 'Default Welcome Intent' || messageTextLower.includes('hi') || messageTextLower.includes('hello')) {
-      replyText = `👋 *Welcome to McKingstown Men's Salon!*
-
-India's Premier Grooming Destination 
-*100+ Outlets | Now in Dubai!*
-
-▸ *For Customers:*
-• Type *"haircut"* - View haircut prices (₹75+)
-• Type *"beard"* - Beard services (₹40+)
-• Type *"facial"* - Facial services (₹300+)
-• Type *"spa"* - Hair spa treatments (₹400+)
-• Type *"color"* - Hair color services (₹100+)
-• Type *"wedding"* - Wedding packages (₹2,999+)
-• Type *"menu"* - Complete price list
-• Type *"book"* - Book appointment
-
-▸ *For Business Partners:*
-• Type *"franchise"* - Investment opportunity (₹19L)
-
-▸ 10+ years experience | Premium quality at affordable prices
-
-What would you like today? `;
-    }
+    
+    // PRIORITY 3: Enhanced fallback with natural language understanding
     else {
-      // Enhanced fallback with natural language understanding
       if (messageTextLower.match(/\b(cut|haircut|hair|style|mullet|fade|taper|champ)\b/)) {
         replyText = ResponseGenerator.getHaircutServices();
       }
