@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const twilio = require('twilio');
 const dialogflowService = require('../services/dialogflowService');
 const twilioService = require('../services/twilioService');
 
@@ -48,24 +49,18 @@ router.post('/whatsapp', async (req, res) => {
 
     console.log('📤 Response sent to user');
 
-    // Respond to Twilio with 200 OK (must be within timeout)
-    res.status(200).send('OK');
+    // Respond to Twilio with TwiML (required format)
+    const twiml = new twilio.twiml.MessagingResponse();
+    res.type('text/xml').send(twiml.toString());
 
   } catch (error) {
     console.error('❌ Error in WhatsApp webhook:', error);
     
-    // Try to send error message to user
-    try {
-      await twilioService.sendWhatsAppMessage(
-        req.body.From,
-        'Sorry, I encountered an error. Please try again later.'
-      );
-    } catch (sendError) {
-      console.error('Failed to send error message to user:', sendError);
-    }
-
-    // Always respond to Twilio to prevent retries
-    res.status(200).send('Error handled');
+    // Return TwiML error response to Twilio
+    const twiml = new twilio.twiml.MessagingResponse();
+    twiml.message('Sorry, I encountered an error. Please try again.');
+    res.type('text/xml').send(twiml.toString());
+    
   }
 });
 
