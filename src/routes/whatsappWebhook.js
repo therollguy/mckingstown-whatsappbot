@@ -319,13 +319,23 @@ Or type *"menu"* for complete service list. How can I assist you?`;
     }
 
 
-    // Send response back to user via Twilio
-    await twilioService.sendWhatsAppMessage(
-      From,
-      replyText
-    );
-
-    console.log('📤 Response sent to user');
+    // Send response back to user
+    const DEV_MODE = process.env.DEV_MODE === 'true';
+    
+    if (DEV_MODE) {
+      // Development mode - just log response (FREE, no Twilio costs)
+      console.log('🧪 DEV MODE - Response (not sent via Twilio):');
+      console.log('─'.repeat(60));
+      console.log(replyText);
+      console.log('─'.repeat(60));
+    } else {
+      // Production mode - send via Twilio
+      await twilioService.sendWhatsAppMessage(
+        From,
+        replyText
+      );
+      console.log('📤 Response sent to user');
+    }
 
     // Respond to Twilio with TwiML (required format)
     const twiml = new twilio.twiml.MessagingResponse();
