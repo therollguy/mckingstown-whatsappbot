@@ -201,53 +201,53 @@ class FranchiseService {
    * Get complete franchise overview
    */
   getOverview() {
-    return `🤝 *MCKINGSTOWN FRANCHISE OPPORTUNITY*
+    return `═══ *MCKINGSTOWN FRANCHISE OPPORTUNITY*
 
 *Your Investment, Our Commitment*
 
-🏪 *About Us:*
-• 100+ outlets across India + Dubai
-• 10+ years of grooming industry experience
-• Premium grooming at affordable prices
-• Expert professionals & academy training
+▸ *About Us:*
+  ➤ 100+ outlets across India + Dubai
+  ➤ 10+ years of grooming industry experience
+  ➤ Premium grooming at affordable prices
+  ➤ Expert professionals & academy training
 
-💰 *Investment: ₹19,00,000*
+▸ *Investment: ₹19,00,000*
 (For up to 500 sq.ft outlet)
 
-📊 *Expected Returns:*
-• Monthly Profit: ₹65K - ₹1.98L
-• Annual Profit: ₹7.8L - ₹23.76L
-• ROI: 41% - 125% annually
+▸ *Expected Returns:*
+  ➤ Monthly Profit: ₹65K - ₹1.98L
+  ➤ Annual Profit: ₹7.8L - ₹23.76L
+  ➤ ROI: 41% - 125% annually
 
-📍 *Location: Minimum 500 sq.ft, Ground floor*
+▸ *Location: Minimum 500 sq.ft, Ground floor*
 
 Type *"investment"* for detailed breakup
 Type *"revenue"* for profit projections
 Type *"support"* for franchise support
 Type *"contact"* to connect with team
 
-📞 Call: +91 8939000150
-🌐 www.mckingstown.com`;
+Tel: Call: +91 8939000150
+Web: www.mckingstown.com`;
   }
 
   /**
    * Get investment details
    */
   getInvestmentDetails() {
-    let response = `💰 *FRANCHISE INVESTMENT DETAILS*\n\n*Total Investment: ${this.data.investment.total}*\n(${this.data.investment.areaLimit})\n\n`;
+    let response = `▸ *FRANCHISE INVESTMENT DETAILS*\n\n*Total Investment: ${this.data.investment.total}*\n(${this.data.investment.areaLimit})\n\n`;
     
-    response += `📋 *Investment Breakup:*\n\n`;
+    response += `▸ *Investment Breakup:*\n\n`;
     this.data.investment.breakup.forEach(item => {
-      response += `• ${item.item}: ${item.amount}\n`;
+      response += `  ➤ ${item.item}: ${item.amount}\n`;
       if (item.note) response += `  _${item.note}_\n`;
     });
 
-    response += `\n⚠️ *Important Notes:*\n`;
+    response += `\nNOTE: *Important Notes:*\n`;
     this.data.investment.additionalNotes.slice(0, 3).forEach(note => {
-      response += `• ${note}\n`;
+      response += `  ➤ ${note}\n`;
     });
 
-    response += `\nType *"revenue"* for profit projections\nType *"contact"* to discuss with team\n\n📞 ${this.data.contact.phone}`;
+    response += `\nType *"revenue"* for profit projections\nType *"contact"* to discuss with team\n\nTel: ${this.data.contact.phone}`;
     
     return response;
   }
@@ -256,24 +256,24 @@ Type *"contact"* to connect with team
    * Get revenue projections
    */
   getRevenueProjections() {
-    let response = `📊 *REVENUE & PROFIT PROJECTIONS*\n\n`;
+    let response = `▸ *REVENUE & PROFIT PROJECTIONS*\n\n`;
     
     this.data.revenue.projections.forEach(proj => {
       response += `*${proj.level} Scenario:*\n`;
-      response += `💵 Sales: ${proj.sales}/month\n`;
-      response += `💰 Net Profit: ${proj.profitMonth}/month\n`;
-      response += `📈 Annual Profit: ${proj.profitYear}\n`;
-      response += `🎯 ROI: ${proj.roi}\n\n`;
+      response += `▸ Sales: ${proj.sales}/month\n`;
+      response += `▸ Net Profit: ${proj.profitMonth}/month\n`;
+      response += `▸ Annual Profit: ${proj.profitYear}\n`;
+      response += `▸ ROI: ${proj.roi}\n\n`;
     });
 
     response += `*Monthly Expense Breakup:*\n`;
-    response += `• Salary + Stay + Food: ${this.data.revenue.expenseBreakup.salary}\n`;
-    response += `• Rental: ${this.data.revenue.expenseBreakup.rental}\n`;
-    response += `• Products: ${this.data.revenue.expenseBreakup.products}\n`;
-    response += `• Royalty: ${this.data.revenue.expenseBreakup.royalty}\n`;
-    response += `• Others: ${this.data.revenue.expenseBreakup.miscellaneous}\n\n`;
+    response += `  ➤ Salary + Stay + Food: ${this.data.revenue.expenseBreakup.salary}\n`;
+    response += `  ➤ Rental: ${this.data.revenue.expenseBreakup.rental}\n`;
+    response += `  ➤ Products: ${this.data.revenue.expenseBreakup.products}\n`;
+    response += `  ➤ Royalty: ${this.data.revenue.expenseBreakup.royalty}\n`;
+    response += `  ➤ Others: ${this.data.revenue.expenseBreakup.miscellaneous}\n\n`;
 
-    response += `Type *"investment"* for cost details\nType *"contact"* to discuss\n\n📞 ${this.data.contact.phone}`;
+    response += `Type *"investment"* for cost details\nType *"contact"* to discuss\n\nTel: ${this.data.contact.phone}`;
     
     return response;
   }
@@ -282,15 +282,15 @@ Type *"contact"* to connect with team
    * Get franchise support details
    */
   getSupportDetails() {
-    let response = `🎯 *FRANCHISE SUPPORT & ADVANTAGES*\n\n*We Provide:*\n`;
+    let response = `▸ *FRANCHISE SUPPORT & ADVANTAGES*\n\n*We Provide:*\n`;
     
     this.data.support.forEach(item => {
-      response += `✅ ${item}\n`;
+      response += `▸ ${item}\n`;
     });
 
     response += `\n*Your Advantages:*\n`;
     this.data.advantages.forEach(item => {
-      response += `🌟 ${item}\n`;
+      response += `▸ ${item}\n`;
     });
 
     response += `\n*6-Step Process:*\n`;
@@ -298,7 +298,7 @@ Type *"contact"* to connect with team
       response += `${index + 1}. ${step}\n`;
     });
 
-    response += `\nReady to start your franchise journey?\nType *"contact"* to connect!\n\n📞 ${this.data.contact.phone}`;
+    response += `\nReady to start your franchise journey?\nType *"contact"* to connect!\n\nTel: ${this.data.contact.phone}`;
     
     return response;
   }
@@ -307,22 +307,22 @@ Type *"contact"* to connect with team
    * Get contact details
    */
   getContactDetails() {
-    return `📞 *GET IN TOUCH WITH US*
+    return `Tel: *GET IN TOUCH WITH US*
 
 *${this.data.contact.company}*
 
-📍 *Head Office:*
+▸ *Head Office:*
 ${this.data.contact.address}
 Tamil Nadu, India
 ${this.data.contact.landmark}
 
-📱 *Phone:* ${this.data.contact.phone}
-✉️ *Email:* ${this.data.contact.email}
-🌐 *Website:* ${this.data.contact.website}
+Mobile: *Phone:* ${this.data.contact.phone}
+Email: *Email:* ${this.data.contact.email}
+Web: *Website:* ${this.data.contact.website}
 📲 *Social Media:* ${this.data.contact.social}
 
 *For State-Specific Queries:*
-Please share your state/city, and I'll connect you with the regional franchise manager! 🤝`;
+Please share your state/city, and I'll connect you with the regional franchise manager! ═══`;
   }
 
   /**
@@ -357,35 +357,35 @@ Please share your state/city, and I'll connect you with the regional franchise m
     const officer = this.findOfficer(location);
 
     if (!officer) {
-      return `Thank you for your interest in McKingstown franchise! 🤝
+      return `Thank you for your interest in McKingstown franchise! ═══
 
 Please share your specific city or state, and I'll connect you with the right regional manager.
 
 Or call our head office directly:
-📞 ${this.data.contact.phone}
+Tel: ${this.data.contact.phone}
 
 Type *"franchise"* for complete details!`;
     }
 
-    return `Thank you for your interest in McKingstown franchise from *${location}*! 🤝
+    return `Thank you for your interest in McKingstown franchise from *${location}*! ═══
 
 *Your Regional Franchise Manager:*
 
-👤 *${officer.name}*
-📍 ${officer.state}
-📱 *WhatsApp:* ${officer.phone}
+▸ *${officer.name}*
+▸ ${officer.state}
+Mobile: *WhatsApp:* ${officer.phone}
 
 They will help you with:
-✅ Investment details & ROI
-✅ Location selection & analysis
-✅ Outlet setup process
-✅ Training & ongoing support
+▸ Investment details & ROI
+▸ Location selection & analysis
+▸ Outlet setup process
+▸ Training & ongoing support
 
 *Your inquiry has been recorded!* 📝
 Our team will contact you within 24 hours.
 
 You can also reach out directly:
-📞 Head Office: ${this.data.contact.phone}
+Tel: Head Office: ${this.data.contact.phone}
 
 Type *"investment"* or *"revenue"* for details!`;
   }

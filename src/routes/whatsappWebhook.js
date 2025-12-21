@@ -78,30 +78,30 @@ router.post('/whatsapp', async (req, res) => {
       replyText = ResponseGenerator.getGroomServices();
     }
     else if (intent === 'Timing') {
-      replyText = `⏰ *McKingstown Opening Hours*
+      replyText = `▸ *McKingstown Opening Hours*
 
-🗓️ Monday - Saturday: 9:00 AM - 9:00 PM
-🗓️ Sunday: 10:00 AM - 8:00 PM
+▸ Monday - Saturday: 9:00 AM - 9:00 PM
+▸ Sunday: 10:00 AM - 8:00 PM
 
 We're here 7 days a week! Need help with anything else?`;
     }
     else if (intent === 'Location') {
-      replyText = `📍 *Find Your Nearest McKingstown Outlet*
+      replyText = `▸ *Find Your Nearest McKingstown Outlet*
 
 We have 100+ outlets across India!
 
 Please share your city name, and I'll help you find the closest branch. 🏪`;
     }
     else if (intent === 'Appointment' || messageTextLower.includes('book') || messageTextLower.includes('appointment')) {
-      replyText = `📅 *Book Your Appointment*
+      replyText = `▸ *Book Your Appointment*
 
 Great! I can help you book an appointment.
 
 Please share:
-1️⃣ Your preferred date & time
-2️⃣ Your city/location
+1. Your preferred date & time
+2. Your city/location
 
-We'll confirm your booking shortly! 💈`;
+We'll confirm your booking shortly! `;
     }
     else if (intent === 'Franchise_Inquiry' || messageTextLower.includes('franchise')) {
       // Check for specific franchise keywords
@@ -130,10 +130,10 @@ We'll confirm your booking shortly! 💈`;
     else if (intent === 'Welcome' || intent === 'Default Welcome Intent' || messageTextLower.includes('hi') || messageTextLower.includes('hello')) {
       replyText = `👋 *Welcome to McKingstown Men's Salon!*
 
-India's Premier Grooming Destination 💈
+India's Premier Grooming Destination 
 *100+ Outlets | Now in Dubai!*
 
-🌟 *For Customers:*
+▸ *For Customers:*
 • Type *"haircut"* - View haircut prices (₹75+)
 • Type *"beard"* - Beard services (₹40+)
 • Type *"facial"* - Facial services (₹300+)
@@ -143,27 +143,27 @@ India's Premier Grooming Destination 💈
 • Type *"menu"* - Complete price list
 • Type *"book"* - Book appointment
 
-🤝 *For Business Partners:*
+▸ *For Business Partners:*
 • Type *"franchise"* - Investment opportunity (₹19L)
 
-📍 10+ years experience | Premium quality at affordable prices
+▸ 10+ years experience | Premium quality at affordable prices
 
-What would you like today? 😊`;
+What would you like today? `;
     }
     else {
       // Fallback for unknown intents
-      replyText = `Sorry, I didn't quite understand that. 😅
+      replyText = `Sorry, I didn't quite understand that. 
 
 I can help you with:
-💈 *Haircut* prices & styles
+ *Haircut* prices & styles
 🧔 *Beard* services
 ✨ *Facial* treatments
 💆 *Spa* services
 🎨 *Color* services
 💍 *Wedding* packages
-📅 *Book* appointments
+▸ *Book* appointments
 🏪 *Find* nearest outlet
-🤝 *Franchise* inquiries
+▸ *Franchise* inquiries
 
 Type *"menu"* for complete price list!`;
     }
