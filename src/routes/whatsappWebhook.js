@@ -4,6 +4,7 @@ const twilio = require('twilio');
 const dialogflowService = require('../services/dialogflowService');
 const twilioService = require('../services/twilioService');
 const ResponseGenerator = require('../utils/responseGenerator');
+const franchiseService = require('../services/franchiseService');
 
 /**
  * POST /webhook/whatsapp
@@ -103,31 +104,49 @@ Please share:
 We'll confirm your booking shortly! 💈`;
     }
     else if (intent === 'Franchise_Inquiry' || messageTextLower.includes('franchise')) {
-      replyText = `🤝 *McKingstown Franchise Opportunity*
-
-Thank you for your interest in partnering with us!
-
-To help you better, please share your:
-📍 State/City where you want to open the franchise
-
-Our franchise team will get in touch with you shortly! 🎯`;
+      // Check for specific franchise keywords
+      if (messageTextLower.includes('investment') || messageTextLower.includes('cost') || messageTextLower.includes('breakup')) {
+        replyText = franchiseService.getInvestmentDetails();
+      }
+      else if (messageTextLower.includes('revenue') || messageTextLower.includes('profit') || messageTextLower.includes('roi') || messageTextLower.includes('return')) {
+        replyText = franchiseService.getRevenueProjections();
+      }
+      else if (messageTextLower.includes('support') || messageTextLower.includes('help') || messageTextLower.includes('training')) {
+        replyText = franchiseService.getSupportDetails();
+      }
+      else if (messageTextLower.includes('contact') || messageTextLower.includes('call') || messageTextLower.includes('phone')) {
+        replyText = franchiseService.getContactDetails();
+      }
+      // Check if location is mentioned
+      else if (messageText.match(/\b(chennai|bangalore|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra|telangana|rajasthan|west bengal)\b/i)) {
+        const location = messageText.match(/\b(chennai|bangalore|bengaluru|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|kochi|coimbatore|madurai|vijayawada|visakhapatnam|nagpur|nashik|thiruvananthapuram|mysore|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra pradesh|andhra|telangana|rajasthan|west bengal)\b/i)[0];
+        replyText = franchiseService.getLocationResponse(location);
+      }
+      else {
+        // General franchise inquiry
+        replyText = franchiseService.getOverview();
+      }
     }
     else if (intent === 'Welcome' || intent === 'Default Welcome Intent' || messageTextLower.includes('hi') || messageTextLower.includes('hello')) {
       replyText = `👋 *Welcome to McKingstown Men's Salon!*
 
 India's Premier Grooming Destination 💈
+*100+ Outlets | Now in Dubai!*
 
-🌟 *Quick Menu:*
-• Type *"haircut"* - View haircut prices
-• Type *"beard"* - Beard services
-• Type *"facial"* - Facial services
-• Type *"spa"* - Hair spa treatments
-• Type *"color"* - Hair color services
-• Type *"wedding"* - Wedding packages
+🌟 *For Customers:*
+• Type *"haircut"* - View haircut prices (₹75+)
+• Type *"beard"* - Beard services (₹40+)
+• Type *"facial"* - Facial services (₹300+)
+• Type *"spa"* - Hair spa treatments (₹400+)
+• Type *"color"* - Hair color services (₹100+)
+• Type *"wedding"* - Wedding packages (₹2,999+)
 • Type *"menu"* - Complete price list
 • Type *"book"* - Book appointment
 
-📍 100+ outlets | Premium quality at affordable prices
+🤝 *For Business Partners:*
+• Type *"franchise"* - Investment opportunity (₹19L)
+
+📍 10+ years experience | Premium quality at affordable prices
 
 What would you like today? 😊`;
     }
