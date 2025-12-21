@@ -10,14 +10,29 @@ class DialogflowService {
       throw new Error('DIALOGFLOW_PROJECT_ID is not set in environment variables');
     }
 
-    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-      throw new Error('GOOGLE_APPLICATION_CREDENTIALS is not set in environment variables');
+    // Handle Base64 encoded credentials (for Render.com and other cloud platforms)
+    if (process.env.GOOGLE_CREDENTIALS_BASE64) {
+      try {
+        const credentials = JSON.parse(
+          Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString()
+        );
+        
+        this.sessionClient = new dialogflow.SessionsClient({
+          credentials: credentials
+        });
+        
+        console.log('✅ Dialogflow service initialized (Base64 credentials)');
+      } catch (error) {
+        throw new Error(`Failed to parse Base64 credentials: ${error.message}`);
+      }
+    } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      // Use JSON file path (for local development)
+      this.sessionClient = new dialogflow.SessionsClient();
+      console.log('✅ Dialogflow service initialized (JSON file credentials)');
+    } else {
+      throw new Error('No Google credentials provided. Set either GOOGLE_CREDENTIALS_BASE64 or GOOGLE_APPLICATION_CREDENTIALS');
     }
-
-    // Initialize Dialogflow session client
-    this.sessionClient = new dialogflow.SessionsClient();
     
-    console.log('✅ Dialogflow service initialized');
     console.log(`   Project ID: ${this.projectId}`);
   }
 
