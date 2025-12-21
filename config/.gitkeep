@@ -1,0 +1,2 @@
+# This file ensures the config directory is tracked by git
+# Place your dialogflow-service-account.json file here (it will be ignored by .gitignore)
