@@ -348,19 +348,6 @@ Or type *"menu"* for complete service list. How can I assist you?`;
       }
     }
 
-I can help you with:
- *Haircut* prices & styles
-🧔 *Beard* services
-✨ *Facial* treatments
-💆 *Spa* services
-🎨 *Color* services
-💍 *Wedding* packages
-▸ *Book* appointments
-🏪 *Find* nearest outlet
-▸ *Franchise* inquiries
-
-Type *"menu"* for complete price list!`;
-    }
 
     // Send response back to user via Twilio
     await twilioService.sendWhatsAppMessage(
