@@ -1,7 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const twilio = require('twilio');
-const dialogflowService = require('../services/dialogflowService');
+
+// Use mock Dialogflow in dev mode (FREE testing without credentials)
+const DEV_MODE = process.env.DEV_MODE === 'true';
+const dialogflowService = DEV_MODE 
+  ? require('../services/mockDialogflowService')
+  : require('../services/dialogflowService');
+
 const twilioService = require('../services/twilioService');
 const ResponseGenerator = require('../utils/responseGenerator');
 const franchiseService = require('../services/franchiseService');
