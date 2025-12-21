@@ -3,6 +3,7 @@ const router = express.Router();
 const twilio = require('twilio');
 const dialogflowService = require('../services/dialogflowService');
 const twilioService = require('../services/twilioService');
+const ResponseGenerator = require('../utils/responseGenerator');
 
 /**
  * POST /webhook/whatsapp
@@ -43,19 +44,37 @@ router.post('/whatsapp', async (req, res) => {
 
     // Generate response based on detected intent
     const intent = dialogflowResponse.intent;
+    const messageTextLower = messageText.toLowerCase();
     let replyText;
 
-    if (intent === 'Service_Pricing' || intent === 'Haircut_Price' || intent === 'Beard_Service' || intent === 'Facial_Service') {
-      replyText = `💈 *McKingstown Services & Prices*
-
-🔸 Haircut: ₹199
-🔸 Beard Trim: ₹99
-🔸 Facial: ₹299
-🔸 Haircut + Beard Combo: ₹249
-
-📍 Available at 100+ outlets across India!
-
-Would you like to book an appointment or find your nearest outlet? 😊`;
+    // Check for menu keyword
+    if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('services')) {
+      replyText = ResponseGenerator.getCompleteMenu();
+    }
+    // Check for specific service keywords
+    else if (messageTextLower.includes('haircut') || intent === 'Haircut_Price' || intent === 'Service_Pricing') {
+      replyText = ResponseGenerator.getHaircutServices();
+    }
+    else if (messageTextLower.includes('beard') || messageTextLower.includes('shave') || intent === 'Beard_Service') {
+      replyText = ResponseGenerator.getBeardServices();
+    }
+    else if (messageTextLower.includes('facial') || messageTextLower.includes('face') || intent === 'Facial_Service') {
+      replyText = ResponseGenerator.getFacialServices();
+    }
+    else if (messageTextLower.includes('spa') || messageTextLower.includes('hair spa')) {
+      replyText = ResponseGenerator.getHairSpaServices();
+    }
+    else if (messageTextLower.includes('color') || messageTextLower.includes('colour') || messageTextLower.includes('dye')) {
+      replyText = ResponseGenerator.getColorServices();
+    }
+    else if (messageTextLower.includes('wedding') || messageTextLower.includes('package') || messageTextLower.includes('combo')) {
+      replyText = ResponseGenerator.getWeddingPackages();
+    }
+    else if (messageTextLower.includes('massage') || messageTextLower.includes('oil')) {
+      replyText = ResponseGenerator.getMassageServices();
+    }
+    else if (messageTextLower.includes('groom') || messageTextLower.includes('makeup') || messageTextLower.includes('styling')) {
+      replyText = ResponseGenerator.getGroomServices();
     }
     else if (intent === 'Timing') {
       replyText = `⏰ *McKingstown Opening Hours*
@@ -72,7 +91,7 @@ We have 100+ outlets across India!
 
 Please share your city name, and I'll help you find the closest branch. 🏪`;
     }
-    else if (intent === 'Appointment') {
+    else if (intent === 'Appointment' || messageTextLower.includes('book') || messageTextLower.includes('appointment')) {
       replyText = `📅 *Book Your Appointment*
 
 Great! I can help you book an appointment.
@@ -81,9 +100,9 @@ Please share:
 1️⃣ Your preferred date & time
 2️⃣ Your city/location
 
-Or call our hotline: 📞 1800-XXX-XXXX`;
+We'll confirm your booking shortly! 💈`;
     }
-    else if (intent === 'Franchise_Inquiry') {
+    else if (intent === 'Franchise_Inquiry' || messageTextLower.includes('franchise')) {
       replyText = `🤝 *McKingstown Franchise Opportunity*
 
 Thank you for your interest in partnering with us!
@@ -93,31 +112,41 @@ To help you better, please share your:
 
 Our franchise team will get in touch with you shortly! 🎯`;
     }
-    else if (intent === 'Welcome' || intent === 'Default Welcome Intent') {
-      replyText = `👋 *Welcome to McKingstown!*
+    else if (intent === 'Welcome' || intent === 'Default Welcome Intent' || messageTextLower.includes('hi') || messageTextLower.includes('hello')) {
+      replyText = `👋 *Welcome to McKingstown Men's Salon!*
 
-India's #1 Barbershop Chain with 100+ outlets! 💈
+India's Premier Grooming Destination 💈
 
-How can I help you today?
+🌟 *Quick Menu:*
+• Type *"haircut"* - View haircut prices
+• Type *"beard"* - Beard services
+• Type *"facial"* - Facial services
+• Type *"spa"* - Hair spa treatments
+• Type *"color"* - Hair color services
+• Type *"wedding"* - Wedding packages
+• Type *"menu"* - Complete price list
+• Type *"book"* - Book appointment
 
-🔸 View Services & Prices
-🔸 Book Appointment
-🔸 Find Nearest Outlet
-🔸 Franchise Inquiry
+📍 100+ outlets | Premium quality at affordable prices
 
-Just type what you need! 😊`;
+What would you like today? 😊`;
     }
     else {
       // Fallback for unknown intents
       replyText = `Sorry, I didn't quite understand that. 😅
 
 I can help you with:
-• Service prices
-• Booking appointments
-• Finding outlets near you
-• Franchise inquiries
+💈 *Haircut* prices & styles
+🧔 *Beard* services
+✨ *Facial* treatments
+💆 *Spa* services
+🎨 *Color* services
+💍 *Wedding* packages
+📅 *Book* appointments
+🏪 *Find* nearest outlet
+🤝 *Franchise* inquiries
 
-Please type what you need!`;
+Type *"menu"* for complete price list!`;
     }
 
     // Send response back to user via Twilio
