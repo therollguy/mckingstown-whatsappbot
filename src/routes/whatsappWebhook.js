@@ -56,11 +56,19 @@ router.post('/whatsapp', async (req, res) => {
   } catch (error) {
     console.error('❌ Error in WhatsApp webhook:', error);
     
-    // Return TwiML error response to Twilio
-    const twiml = new twilio.twiml.MessagingResponse();
-    twiml.message('Sorry, I encountered an error. Please try again.');
-    res.type('text/xml').send(twiml.toString());
+    // Send error message via REST API
+    try {
+      await twilioService.sendWhatsAppMessage(
+        req.body.From,
+        'Sorry, I encountered an error. Please try again later.'
+      );
+    } catch (sendError) {
+      console.error('Failed to send error message:', sendError);
+    }
     
+    // Return empty TwiML (we already sent via REST API)
+    const twiml = new twilio.twiml.MessagingResponse();
+    res.type('text/xml').send(twiml.toString());
   }
 });
 

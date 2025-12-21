@@ -21,15 +21,23 @@ Plan: Free (or Starter for production)
 
 ### 4. Add Environment Variables
 
-**Required:**
+**⚠️ IMPORTANT: Use your ACTUAL credentials, not placeholders!**
+
+Go to Render Dashboard → Your Service → Environment
+
+**Required (click "Add Environment Variable" for each):**
 ```env
 NODE_ENV=production
 PORT=10000
-TWILIO_ACCOUNT_SID=your_twilio_sid
-TWILIO_AUTH_TOKEN=your_twilio_token
+TWILIO_ACCOUNT_SID=your_twilio_account_sid_here
+TWILIO_AUTH_TOKEN=your_twilio_auth_token_here
 TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
 DIALOGFLOW_PROJECT_ID=whatsapp-bot-mckingstown-tyiw
 ```
+
+**⚠️ Your Twilio Account SID MUST start with "AC"**
+
+Find your credentials at: https://console.twilio.com/
 
 ### 5. Add Dialogflow Credentials (IMPORTANT!)
 
@@ -97,13 +105,21 @@ Expected response:
 
 ## 🐛 Common Issues
 
+### "accountSid must start with AC"
+→ **TWILIO_ACCOUNT_SID not set correctly in Render**
+→ Go to: Render Dashboard → Your Service → Environment
+→ Add: Key=`TWILIO_ACCOUNT_SID`, Value=`your_actual_account_sid`
+→ Click "Save Changes" and redeploy
+
 ### "Application failed to start"
 → Check logs in Render dashboard
-→ Verify all environment variables are set
+→ Verify ALL environment variables are set (not just added)
+→ Make sure to click "Save Changes" after adding variables
 
 ### "Google credentials error"
 → Make sure Base64 string is correct
 → No line breaks in Base64 value
+→ Paste the entire Base64 output
 
 ### "Port already in use"
 → Render uses PORT=10000 (already configured)
