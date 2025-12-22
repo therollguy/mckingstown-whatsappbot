@@ -3,6 +3,44 @@ const router = express.Router();
 const dialogflowService = require('../services/dialogflowService');
 const ResponseGenerator = require('../utils/responseGenerator');
 const franchiseService = require('../services/franchiseService');
+const outletsData = require('../data/outlets');
+
+/**
+ * Detect city/location in message
+ */
+function detectLocation(message) {
+  const cities = outletsData.getAllCities();
+  const messageLower = message.toLowerCase();
+  
+  for (const city of cities) {
+    if (messageLower.includes(city.toLowerCase())) {
+      return city;
+    }
+  }
+  
+  const cityVariations = {
+    'chennai': ['chennai', 'madras'],
+    'bangalore': ['bangalore', 'bengaluru'],
+    'coimbatore': ['coimbatore', 'cbe'],
+    'madurai': ['madurai'],
+    'trichy': ['trichy', 'tiruchirappalli'],
+    'salem': ['salem'],
+    'tirupati': ['tirupati'],
+    'surat': ['surat'],
+    'ahmedabad': ['ahmedabad'],
+    'dubai': ['dubai', 'uae']
+  };
+  
+  for (const [city, variations] of Object.entries(cityVariations)) {
+    for (const variation of variations) {
+      if (messageLower.includes(variation)) {
+        return city;
+      }
+    }
+  }
+  
+  return null;
+}
 
 /**
  * POST /webhook/test

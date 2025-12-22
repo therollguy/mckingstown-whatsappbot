@@ -3,6 +3,8 @@
  * Comprehensive franchise information and inquiry handling
  */
 
+const outletsData = require('../data/outlets');
+
 const franchiseData = {
   investment: {
     total: '₹19,00,000',
@@ -351,9 +353,92 @@ Please share your state/city, and I'll connect you with the regional franchise m
   }
 
   /**
+   * Find outlets by location
+   */
+  findOutlets(location) {
+    const normalizedLocation = location.toLowerCase().trim();
+    
+    // Try to find by city first
+    let foundOutlets = outletsData.getOutletsByCity(normalizedLocation);
+    
+    // If not found by city, try by state
+    if (foundOutlets.length === 0) {
+      foundOutlets = outletsData.getOutletsByState(normalizedLocation);
+    }
+    
+    return foundOutlets;
+  }
+
+  /**
+   * Format outlets list for display
+   */
+  formatOutletsList(outlets, location) {
+    if (outlets.length === 0) {
+      return null;
+    }
+
+    let response = `▸ *McKingstown Outlets in ${location}* ═══\n\n`;
+    response += `Found *${outlets.length}* outlet${outlets.length > 1 ? 's' : ''}:\n\n`;
+
+    // Show first 5 outlets with full details
+    const displayOutlets = outlets.slice(0, 5);
+    displayOutlets.forEach((outlet, index) => {
+      response += outletsData.formatOutletDetails(outlet);
+      if (index < displayOutlets.length - 1) {
+        response += '\n\n━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+      }
+    });
+
+    // If more than 5, show summary
+    if (outlets.length > 5) {
+      response += `\n\n▸ *+${outlets.length - 5} more outlets in ${location}*`;
+    }
+
+    response += `\n\n━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    response += `*Total McKingstown Outlets: ${outletsData.totalOutlets}+*\n`;
+    response += `Present in: Chennai, Bangalore, Coimbatore, Madurai, Salem, Trichy, Tirupati, Surat, Ahmedabad, Dubai & more!`;
+
+    return response;
+  }
+
+  /**
+   * Get outlets by location (for user queries)
+   */
+  getOutletsByLocation(location) {
+    const outlets = this.findOutlets(location);
+    
+    if (outlets.length > 0) {
+      return this.formatOutletsList(outlets, location);
+    }
+
+    // If no outlets found, suggest nearby cities
+    return `We don't have outlets in *${location}* yet, but we're expanding! ═══
+
+*McKingstown is present in:*
+▸ *Tamil Nadu:* Chennai (70+ outlets), Coimbatore (10+), Madurai (10+), Salem, Trichy, Tirupur, Erode
+▸ *Karnataka:* Bangalore (3 outlets)
+▸ *Andhra Pradesh:* Tirupati (2 outlets), Kadapa
+▸ *Gujarat:* Surat (4 outlets), Ahmedabad (2 outlets)
+▸ *Puducherry:* Puducherry, Karaikal
+▸ *International:* Dubai (UAE)
+
+*Total: ${outletsData.totalOutlets}+ outlets across India & Dubai!*
+
+Want to open a franchise in ${location}?
+Type *"franchise"* for investment details!`;
+  }
+
+  /**
    * Generate response for location-specific inquiry
    */
   getLocationResponse(location) {
+    // First try to find existing outlets
+    const outletsResponse = this.getOutletsByLocation(location);
+    if (outletsResponse) {
+      return outletsResponse;
+    }
+
+    // If no outlets, provide franchise information
     const officer = this.findOfficer(location);
 
     if (!officer) {

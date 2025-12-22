@@ -1,0 +1,147 @@
+	MCKINGSTOWN OUTLETS			
+				
+				
+S.No.	OUTLET NAME		ADDRESS	OUTLET NO.
+1	ANNA NAGAR (Brand Outlet)		1734, 18th Main Rd, Bharathi Nagar, I Block, Anna Nagar, Chennai, Tamil Nadu 600040	8939900567
+2	TAMBARAM	27-09-2021	No:149, Velachery Road, East Tambaram, Tambaram, Chennai, Tamil Nadu - 600059	9884029730
+3	MUTHUPET	08-12-2021	No: 263, Star Complex, Old Bus Stand, TTP Road, Muthupet, Tamil Nadu - 614704	8838885004
+4	KILPAUK	20-12-2021	No: 46/46D, Old No: 19, Barnaby Road, Kilpauk, Chennai, Tamil Nadu - 600010	9363077774
+5	PERUMBAKKAM	09-06-2022	Plot No: 27, Vijay Nagar, Perumbakkam, Sholinganallur Main Road, Medavakkam, Chennai, Tamil Nadu- 600100	8925755574
+6	VALASARAVAKKAM	01-07-2022	No: 50, Old No: 164, Arcot Road, Valasaravakkam, Chennai, Tamil Nadu - 600087	9150835556
+7	ADYAR (Brand Outlet)	15-07-2022	No: 18/16, Second Main Road, near Nilgiris Super Market, Kasturba Nagar, Adyar, Chennai, Tamil Nadu - 600020	9840323136
+8	NANGANALLUR	20-07-2022 (10 july)	5B, 6th Main Road, Opposite Independence Day Park, TNGO Colony, Nanganallur, Chennai, Tamil Nadu - 600061	9159855556
+9	PERVALUR	31-08-2022	No: 55, SRP Colony Main Road, 7th Street, Peravallur, Chennai, Tamil Nadu - 600082	6380808084
+10	P N PUDUR	07-11-2022	No.237/ 184, Marudhamalai Main Road, P.N Pudur, Coimbatore, Tamil Nadu - 641041	9035903540
+11	KODAMBAKKAM	23-12-2022	No:13, Murugesan Street, behind HDFC bank, Kodambakkam, Chennai, Tamil Nadu - 600024	9840135285
+12	KORATTUR	18-01-2023	No: 75-A, Railway Station Road, behind Korattur Bus Depot, Chennai, Tamil Nadu - 600080	8939543999
+13	MADIPAKKAM	16-02-2023	No: 22A, Sabari Salai, Ayyappan Nagar, Madipakkam, Chennai, Tamil Nadu - 600091	7845944600
+14	MADHANANDAPURAM	17-02-2023	No: 29, Raja Rajeswari Nagar, Sarojini Street, Mugalivakkam Road, Madhanandapuram, Chennai, Tamil Nadu - 600125	9790111256
+15	AMBATUR PUDUR	23-02-2023	No. 175/70, Red Hills Main Road, Pudur, Ambattur, Chennai, Tamil Nadu - 600053	8610755345
+16	MOGAPPAIR EAST	02-03-2023	No: 5/448, MIG, Pari Salai, Mogappair East, Chennai, Tamil Nadu 600037	9159556665
+17	AYANAVARAM	08-03-2023	Old No: 334, New No: 138, Konnur High Road, Venkatesapuram Colony, Ayanavaram, Chennai, Tamil Nadu - 600023	7358110227
+18	AMINJIKARAI	30-03-2023	Plot No: 30, Door No: 16, Railway Colony 3rd Street, Nelson Manickam Road, Aminjikarai, Chennai, Tamil Nadu - 600029	7305973699
+19	SOWCARPET	05-04-2023	No: 72, Amman Koil Street, Sowcarpet, George Town, Chennai, Tamil Nadu - 600001	8680000191
+20	MOGAPPAIR WEST	12-04-2023	Plot No: C-5/2, Reddipalayam Road, Mogappair West, Nolambur, Chennai, Tamil Nadu - 600037	7845118938
+21	IYAPPANTHANGAL	16-04-2023	No: 2, Subbiah Nagar, A.N. Elumalai Salai, Oil Mill Road, Iyyappanthangal, Chennai, Tamil Nadu - 600056	9363396669
+22	BESANT NAGAR	09-05-2023	No: 61/C, Velankanni Church Road, Besant Nagar, Chennai, Tamil Nadu - 600090	9087171440
+23	KOVILAMBAKKAM	22-05-2023	PPR Complex, 1/70, Medavakkam Main Road, Nanmangalam, Chennai, Tamil Nadu - 600129	9655033833
+24	KOLATHUR	25-05-2023	STR Tower, No:109, Periyar Street, Red Hills Road, Makkaram Thottam, Kolathur, Chennai, Tamil Nadu - 600099	7305962634
+25	VINAYAGA PURAM	07-06-2023	No:16, GG Complex, Vignesh Nagar, Vinayagapuram, Chennai, Tamil Nadu - 600099	9092923330
+26	ROYAPURAM	10-06-2023	New No: 76, Old No: 41, West Madha Church Street, Royapuram, Chennai, Tamil Nadu - 600013	7305949539
+27	KELAMBAKKAM	16-07-2023	Devraj Plaza, No:3/45, Rajiv Gandhi Salai, Kelambakkam, Chennai, Tamil Nadu - 603103	7418636094
+28	MOOLAKADAI	05-08-2023	No: 42-G, M. H. Road, Moolakadai, Chennai - 600060	8124344443
+29	MANAPAKKAM	23-08-2023	No: 2/559, Dr. Ambethkar Nagar, Manapakkam, Chennai, Tamil Nadu - 600125	9047177883
+30	SHOLINGANALLUR	30-08-2023	No:104, Sholinganallur, Old Mahabalipuram Road, Chennai, Tamil Nadu - 600119	7490039006
+31	VEPERY	04-09-2023	No:106, Vepery High Road, Chennai, Tamil Nadu - 600007	7448811130
+32	SALIGRAMAM KK NAGAR	06-09-2023	No:2/5, 6th Cross Street, 5th Main Street, Vijayaragavapuram, Saligramam, Chennai, Tamil Nadu - 600093	6369106369
+33	SALIGRAMAM JALPAN	06-09-2023	No:1, Plot No:36, Kalaignar Karunanidhi Salai, Saligramam, Chennai, Tamil Nadu - 600093	9360859360
+34	TIRUVOTTRIYUR	18-09-2023	Old No:161/1, New No:359, T.H.Road, Tiruvottriyur, Chennai, Tamil Nadu- 600019	8939305551
+35	EDAYARPALAYAM	17-10-2023 (4 oct)	Koundampalayam Road, Edayarpalayam, Coimbatore, Tamil Nadu - 641025	7200287930
+36	ROYAPETTAH	02-10-2023	No:101, Dr. Besant Road, Royapettah, Chennai, Tamil Nadu - 600014	9384845773
+37	CHITLAPAKKAM	04-10-2023	No:14/21, Anna Street, Chitlapakkam, Chennai, Tamil Nadu - 600064	9176525556
+38	RAMAPURAM	09-10-2023	New No:4/2, Kalasathamman Koil Street, Ramapuram, Chennai, Tamil Nadu - 600089	7200512698
+39	WEST MAMBALAM	17-10-2023	No: 22, 37, Lake View Road, Jothi Nagar, West Mambalam, Chennai, Tamil Nadu - 600033	9884000408
+40	AMBATTUR OT	24-10-2023	No: 46, Cholambedu Rd, Tiruvenkadam Nagar, Cholapuram, Ambattur, Chennai, Tamil Nadu - 600053	9944799449
+41	VIDYARANYAPURA BANGLORE (Brand Outlet)	23-10-2023	No: 465, 12th Main, 3 Block, HMT Layout, Vidyaranyapura, Bangalore - 560 097	9962999975
+42	NAGAPATTINUM	03-12-2023	No: 6, Razack Building, Sir Ahmed St, ASN Colony, Melakottaivasal, Nagapattinam, Tamil Nadu - 611001	6385301024
+43	MADURAI	15-12-2023	Shenbakaam Towers, No: 9644/1, Sourashtrapuram, Anna Nagar, Madurai, 625 020	9043996595
+44	TRIRUPATI	22-01-2024	City Center Complex, 18-1-421, Beside Anjineyaswami Temple, Bhavani Nagar, Tirupati - 517501	9006662229
+45	MADIPAKKAM	15-01-2024	Plot No: 927, Bazaar Main Road, Ram Nagar South, Madipakkam, Chennai - 600 091	9150297766
+46	KOTIVAKKAM	23-01-2024	1/583B , Kottivakkam, ECR, Chennai - 600041	8925750949
+47	THIRIVALLUR	23-02-2024	No: 69, C.V. Naidu Salai, Thiruvallur Town, Thiruvallur Taluk - 602001	9363017797
+48	PAMMAL	26-02-2024	No: 19/10, Gandhi Road, Anna Nagar, Pammal, Chennai - 600075	9042475556
+49	KARAIKAL	28-02-2024	No: 11, Deitha Street, Karaikal, Pondicherry - 609602	9944757404
+50	ADAJAN SURAT	19-03-2024	B-19, Monarch, NR Kalpvrux Garden, Gouravpath Road, Pal Adajan, Surat - 395009	8866839373
+51	KODUNGAIYUR (MKB Nagar)	20-03-2024	#2/1, Plot No: 13A, 9th Street, Abirami Avenue, Kodungaiyur, Chennai - 600 118	9444083679
+52	PATTABIRAM	28-03-2024	No: 287, CTH Road, Pattabiram, Chennai - 600072	7305982634
+53	VILLIVAKKAM	08-04-2024	#123/259, MTH Road, Villivakkam, Chennai - 600 049	9789000414
+54	JAI NAGAR ARUMBAKKAM	15-04-2024	No: 20A/37, Jai Nagar, 1st Main Road, Arumbakkam, Chennai - 600106	9500000501
+55	MADHAVARAM	22-04-2024	No.1/1, Perumal Koil Street, Madhavaram, Chennai - 600060	9363525606
+56	ALWARPET	29-04-2024	No.5/1 (Old No.4/1), Ramaswamy Street, Alwarpet, Chennai - 600018	9363930018
+57	MADURAVOYAL	03-05-2024	No: 147, No: 85, Mettukuppam Road, Maduravoyal, Chennai - 600095	9884560028
+58	PERUNGALATHUR	13-05-2024	No. 35 and 36, Srinivasa Perumal Sannadhi Street, New Perungalathur, Chennai - 600 063	7418056100
+59	AYAPAKKAM	14-05-2024	Plot No. 9, TG Anna Nagar, Ayapakkam Main Road, Ambattur, Chennai - 600053	7550184229
+60	ALAPAKKAM	17-05-2024	Plot No. 12, 61 B, Alapakkam Main Road, Maduravoyal, Chennai - 600116	9363620870
+61	KILPAUK  TAYLOR'S ROAD	24-05-2024	Door No. 188E, Poonamallee High Road, Kilpauk, Chennai - 600010	9884557788
+62	TIRUPUR	28-05-2024	209/2, AKP Complex, Gandhi Road, Anupparpalayam Pudur, Tirupur - 641652	9500595378
+63	KUNDRATHUR	09-06-2024	Door No. 2, Ground Floor, Kundrathur Main Road, Moondram Kattalai, Chennai - 600069	9345277789
+64	THIRUVERKADU	09-06-2024	No. 41, Sivan Temple Road, Vallikollaimedu, Thiruverkadu Chennai, Tamil Nadu - 600077	6374218380
+65	SEMBAKKAM	09-06-2024	Plot No. 56/219 B, Velachery Main Road, Sembakkam, Chennai, Tamil Nadu- 600077	9363099330
+66	VELACHERY	10-06-2024	New No. 11, Old No. 80 B, CSI Church Gate Road, Annai Indira Nagar, Velachery, Chennai - 600042	7358744788
+67	SAIBABA COIMBATORE	11-06-2024	No. 3, Bharathi Park Road, 8th Cross, Saibaba Colony, Coimbatore - 641011	7530053540
+68	PAL ADAJAN, SURAT	11-06-2024	Shop No. 16, Ground Floor, The Boulevard, Opp. Western Business Circle, Pal Adajan, Surat - 395009	7041347724
+69	ANNA NAGAR WEST	19-06-2024	No. 573-C, T.D Complex, Ground Floor, SBOA School Road, Anna Nagar West Extn, Chennai - 600101	8925589466
+70	SALEM	03-07-2024	No. 48/3, Rajaji Road, Peramanur, Salem, Tamil Nadu- 636007	72005 60396
+71	TIRUPATTI 2ND Bairagipatteda 	07-07-2024	Door No. 19-12-104 , Bairagipatteda, Tirupati- 517501	80086 59873
+72	PUDUCHERRY	05-08-2024	Door No. 350, Ground floor, Villianur Main Rd, Nellithope, Nellitope, Puducherry, Tamil Nadu 605005	7440744040
+73	ALTHAN SURAT	12-08-2024	"Shop No. 1, Ground Floor, Square one, near Sentosa Height,
+Apcha Nagar, Althan, Surat, Gujarat 395017
+"	9998429393
+74	VESU SURAT	12-08-2024	"GF- 12, Aakash Retail, Opp Square NM Mavani Road, 
+Vesu, Magdalla, Surat, Gujarat 395007
+"	9998659393
+75	NUNGAMBAKKAM	14-08-2024	"Door No. 33, 66, Valluvar Kottam High Rd, Nungambakkam, Chennai, Tamil Nadu 600034
+next to CK’s Bakery
+"	7477470072
+76	GERUGAMBAKKAM	14-08-2024	"Door No. 219, Ground Floor, Thiruveka Street, Gerugambakkam, 
+Kancheepuram, Tamil Nadu 600122
+"	7539967279
+77	ERODE	22-08-2024	"
+H-27, E.V.N Road, Surampatti Naal Road, Erode- 638 009"	9944711266
+78	PERUNGUDI	03-09-2024	No. 4, Panchayat Main Rd, Phase-1, Vijayendra Nagar, Perungudi, Chennai, Tamil Nadu-600096	8220802999
+79	AVADI	05-09-2024	Shop No. 25/1, Kamaraj Nagar, East Main Road, Avadi, Chennai, Tamil Nadu- 600071	9092323330
+80	SAIDAPET	09-09-2024	No. 1/1, Bharathi Street, Kaveri Nagar, Saidapet, Chennai, Tamil Nadu 600015	9597059909
+81	T NAGAR	11-09-2024	Unit No. A, Ground Floor of No. 2 Rajan street, Off Bazullah Road, Chennai, Tamil Nadu- 600017	9360901223
+82	PALLIKARNAI	13-09-2024	No.29, Velachery Main Road, Narayanapuram, Pallikaranai, Chennai, Tamil Nadu- 600100	7550060814
+83	MEDAVAKKAM	16-09-2024	7/499, Ground Floor, Velachery - Tambaram Main Road, Jalladianpet, Medavakkam, Chennai, Tamil Nadu- 600 100	9384949604
+84	KARAYAMBEDU	17-09-2024	No. 787, Nellikuppam Road, Moolakalani, Kayarambedu , Chengalpet, Tamil Nadu- 603202	8190055009
+85	KEELKATLAI	27-09-2024	No. 44, Kalaivani Street, Keelkattalai, Chennai- 600 117	8248581220
+86	MOTERA	04-10-2024	Shop No. 17 A, Central By Sangath IPL, Next To PVR Cinemas, Motera, Ahmedabad-380005 	9610579898
+87	K. PUDUR	17-10-2024	No. 25, Iyer Bungalow Road, K. Pudur, Madurai, Tamil Nadu- 625 007	96777 04357
+88	THUDIYALUR	21-10-2024	No. 114/2, Mayura Complex, NGGO Colony Gate, Mettupalayam Road, Thudiyalur, Tamil Nadu – 641017	9363950051
+89	EGMORE	28-10-2024	No. 6, Ground Floor, Halls Road, Tamil Salai, Egmore, Chennai, Tamil Nadu- 600008	7200905549
+90	NAVALUR	06-11-2024	No.4/62, Ground Floor, Thiruvalluvar Street, Egattur, Near Navalur, Chennai, Tamil Nadu- 600130	72009 81210
+91	PADUR	14-11-2024	Old No. 1/140, New No. 1/40 A Padur Vill & Po. OMR Main Road, Rajiv Gandhi Salai, Chengalpattu, Tamil Nadu 603103	9511118890
+92	SAMPATH NAGAR- ERODE	27-11-2024	Door No.71/1, Kasianna Street, Nasiyanur Road, Sampath Nagar, Edayankattuva Lasu, Erode, Tamil Nadu- 638011	9047473309
+93	KARAYANCHAVDI	28-11-2024	Door No. 57 & 58, Ground Floor, Avadi Main Road, Karayanchavadi, Poonamallee, Chennai, Tamil Nadu- 600056	9952697457
+94	MENAMBEDU	14-12-2024	No. 16/3, TNEB Colony, 3rd Avenue Menambedu, Village Karukku Main Road, Ambattur, Chennai, Tamil Nadu- 600053	9444338496
+95	MATHUR	14-12-2024	Plot No. 1892, 3rd Main Road,  Mathur,  MMDA,  Chennai,  Tamil Nadu- 600068	9566139661
+96	PERAMBUR	23-12-2024	No. 337-339, Paper Mills Road, Shop Nos. 1,3 & 10, Perambur, Chennai, Tamil Nadu- 600011	9363322339
+97	GANPATHY, COIMBATORE	26-12-2024	Door No. 15, Old Sathy Road, Ganapathy, Coimbatore -641006	9952599155
+98	Perumbakkam-Nookampalayam Road	30-12-2024	370/2A, Ground Floor, Harsen Building, Nookampalayam Main Road, Perumbakkam, Chennai, Tamil Nadu- 600100	8122225331
+99	THIRUMULLAVOYAL	08-01-2025	Plot No. A1, Ground Floor, GV Mansarovar, West Mada Street, Thirumullaivoyal, Chennai, Tamil Nadu - 600062 	9840702681
+100	DUBAI (AL QUSAIS)	08-01-2025	Mohammad Abdullah Bindemaithan Building, Building No. 11, Shop No. 4, Al Qusais Industrial 2, Damascus Street	971 569670341
+101	Puthagaram	03-02-2025	No 7, Kadappa Rd, janakiram Nagar, Elumalai Nagar, Ashoka Nagar, Kolathur, Puthagaram, Chennai, Tamilnadu 600099	7448822303
+102	NRI Layout (Banglore)	13-02-2025	New No 32/9 Old No 9/1 Ground Floor KVN Complex F Zone NRI Layout Kalkere Main Rd Ramamurthy Nagar Bengaluru Karnataka 560016	8431392879
+103	Trichy 1st	26-02-2025	No 20/3, Ground Floor (Maya Enclave), Vayalur Main Road, Inbetween Bishop Heber College and Puthur 4 Road, Trichy, Tamil Nadu -620017 Near Puthur 4 Road Signal	8300139777
+104	Trichy 2nd	28-02-2025	No. 3/244, Thanjai Main Road, South Kattur, Tiruchirappalli, Tamil Nadu - 620019. Near UDC College	9514227707
+105	Ayyapakkam TNHB COLONY	03-03-2025	R-73/A, Ayapakkam Housing Board Rd, Rajammal Nagar, TNHB Colony, Annanur, Ayappakkam, Chennai, Tamil Nadu- 600077 Near Virutcham Hospital	9940993090
+106	Sithalapakkam	04-03-2025	No. 4/291, Jayadurga Complex, Ottiyambakkam Main Road, Sithalapakkam, Chennai, Tamil Nadu- 600126 Near Bank Of Baroda	9600896994
+107	Mylapore	12-03-2025	No. 185/248, Royapettah High Road, Rangaiah Garden, Mylapore, ,Chennai, Tamil Nadu- 600004 Opposite to Junior Mess	9159875556
+108	Vettuvenkani ECR	24-03-2025	No: 2/240, East Coast Road, Vettuvankeni, Near Titan and Dominos Chennai, Tamil Nadu - 600115	9962477277
+109	KUDASAN	06-04-2025	No 8 Keshav Aradhyam Kudasan Gandhinagar Gujarat 382421	9624579898
+110	Kanchipuram	18-04-2025	Old 117 New 22 Pillai Street Kanchipuram Chennai Tamilnadu 631501	9500274212
+111	Tirupur PN Road	23-04-2025	No 82/745 Nesavalar Colony PN Road Thimpalayam Village Tirupur Tamilnadu 641602	8870123062
+112	Guindy	30-04-2025	No 50/1 Ground Floor City Link Road Maduvankarai Guindy Chennai Tamilnadu 600032	9080577580
+113	Krishnagiri	30-04-2025	No 43-D Rayappa Street Krishnagiri Tamilnadu 635001	9944747067
+114	Puttu Thoppu Road, Madurai	30-04-2025	No 152 Puttu Thoppu Road Madurai Tamilnadu 625001	9600440601
+115	Gugai Salem	02-05-2025	No. 383/684, Ground Floor, Gugai, Trichy Main Road, Salem, Tamil Nadu- 636006	9944811550
+116	Jafferkhanpet 	09-05-2025	No 81 Pillayar Koil Street Jafferkhanpet Chennai Tamilnadu 600083	7200731283
+117	Old Perungalathur	12-05-2025	Old No. 270, New No. 10, Ground Floor, Old Perungalathur, Mudichur Road, Tambaram, Chennai, Tamil Nadu - 600063	7539977065
+118	Komarapalayam	06-06-2025	No. 310/2 A, Salem Main Road, Komarapalayam, Tamil Nadu- 638183	7305604664
+119	Bazaar Road Mylapore	23-06-2025	New No. 26, Old No. 69, Bazaar Road, Basha Garden, Mylapore, Chennai, Tamil Nadu- 600004	9677572425
+120	Kalavasal	27-06-2025	Door No. 218B, Madurai Theni Road, Chavadi, Kalavasal, Madurai, Tamil Nadu- 625016	9600740100
+121	Sundarapuram Coimbatore	07-07-2025	No. 1/36, Madhukkarai Road, Sundarapuram, Coimbatore, Tamil Nadu - 641024	9940240020
+122	Mannivakkam	22-07-2025	Old No. 7/147, New No. 7/205, Walajabad Main Road, Mannivakkam, Chennai, Tamil Nadu- 600048	9677787407
+123	Urapakkam	18-08-2025	No. 153, GST Road, Urapakkam, Chengalpattu, Tamil Nadu - 603202	9944582055
+124	R S puram	20-08-2025	Door No. 40A, 40B, Srinivasa Ragavan Street, Subramaniam Road, R S Puram Coimbatore, Tamil Nadu - 641002	9500750074
+125	Parthipatthu	27-08-2025	No. 1, Ground Floor, Avadi Main Road, Paruthipattu, Chennai, Tamil Nadu - 600071	8778592229
+126	Vivek Nagar	04-09-2025	 9, Ground Floor, Egipura Main Road, Vivek Nagar, 2nd Stage, Bengaluru-560047	7406560047
+127	Thillai Ganga Nagar	05-09-2025	New No. 10/13, 3rd Main Road, Thillai Ganga Nagar Nanganallur, Chennai, Tamil Nadu – 600061	9087585556
+128	Narimedu	15-09-2025	Door No. 12-A, Ground Floor, P. T Rajan Main Road, Narimedu, Madurai, Tamil Nadu - 625002	9047474800
+129	Koodal Nagar Madurai	26-09-2025	Door No. 3/27/4, Ground Floor, Palamedu Main Road, Appathurai Main Street, Koodal Nagar, Madurai, Tamil Nadu - 625018	9600340601
+130	Saravanampatti	06-10-2025	37 C-2/2, Thudiyalur Main Road, Saravanampatti, Coimbatore, Tamil Nadu - 641035	8111066009
+131	Thiruporur	10-10-2025	Old No:161/1, New No:359, T.H.Road, Tiruvottriyur, Chennai, Tamil Nadu- 600019	6385884297
+132	Sankarapuram kadapa	13-10-2025	Door No. 6/1488-1, Sankarapuram, Kadapa, Andhra Pradesh - 516002	8688640409
+133	Villapuram	10-11-2025	No: 30, Aruppukottai Main Road, Villapuram, Madurai, Tamil Nadu - 625012	8637455962
+134	Advaitha Ashram Road	01-12-2025	No 3 Advaitha Ashram Road, Salem, tamilnadu - 636004	7094241555

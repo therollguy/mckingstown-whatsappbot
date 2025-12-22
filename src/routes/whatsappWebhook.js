@@ -12,6 +12,46 @@ const twilioService = require('../services/twilioService');
 const ResponseGenerator = require('../utils/responseGenerator');
 const franchiseService = require('../services/franchiseService');
 const ConversationalHelper = require('../utils/conversationalHelper');
+const outletsData = require('../data/outlets');
+
+/**
+ * Detect city/location in message
+ */
+function detectLocation(message) {
+  const cities = outletsData.getAllCities();
+  const messageLower = message.toLowerCase();
+  
+  // Check if message contains any city name
+  for (const city of cities) {
+    if (messageLower.includes(city.toLowerCase())) {
+      return city;
+    }
+  }
+  
+  // Common city variations
+  const cityVariations = {
+    'chennai': ['chennai', 'madras'],
+    'bangalore': ['bangalore', 'bengaluru', 'blr'],
+    'coimbatore': ['coimbatore', 'cbe'],
+    'madurai': ['madurai', 'mdu'],
+    'trichy': ['trichy', 'tiruchirappalli', 'trich'],
+    'salem': ['salem'],
+    'tirupati': ['tirupati', 'tirupathi'],
+    'surat': ['surat'],
+    'ahmedabad': ['ahmedabad', 'amdavad'],
+    'dubai': ['dubai', 'uae']
+  };
+  
+  for (const [city, variations] of Object.entries(cityVariations)) {
+    for (const variation of variations) {
+      if (messageLower.includes(variation)) {
+        return city;
+      }
+    }
+  }
+  
+  return null;
+}
 
 /**
  * POST /webhook/whatsapp
@@ -143,11 +183,19 @@ We'll confirm your booking shortly.`;
 We're here 7 days a week. Need help with anything else?`;
       }
       else if (intent === 'Location') {
-        replyText = `▸ *Find Your Nearest McKingstown Outlet*
+        // Check if user mentioned a specific city
+        const detectedCity = detectLocation(messageText);
+        if (detectedCity) {
+          replyText = franchiseService.getOutletsByLocation(detectedCity);
+        } else {
+          replyText = `▸ *Find Your Nearest McKingstown Outlet*
 
-We have 100+ outlets across India.
+We have ${outletsData.totalOutlets}+ outlets across India & Dubai.
 
-Please share your city name, and I'll help you find the closest branch.`;
+Please share your city name, and I'll help you find the closest branch.
+
+*Major cities:* Chennai, Bangalore, Coimbatore, Madurai, Salem, Trichy, Tirupati, Surat, Ahmedabad, Dubai`;
+        }
       }
       else if (intent === 'Appointment') {
         replyText = `▸ *Book Your Appointment*
@@ -194,11 +242,17 @@ Type:
 What service are you interested in?`;
         }
         else if (messageTextLower.match(/\b(where|location|address|near|nearby|outlet)\b/)) {
-          replyText = `We have 100+ outlets across India.
+          // Check if user mentioned a city
+          const detectedCity = detectLocation(messageText);
+          if (detectedCity) {
+            replyText = franchiseService.getOutletsByLocation(detectedCity);
+          } else {
+            replyText = `We have ${outletsData.totalOutlets}+ outlets across India & Dubai.
 
 Please share your city name, and I'll help you find the nearest McKingstown outlet.
 
-Major cities: Chennai, Bangalore, Mumbai, Delhi, Hyderabad, Pune, Ahmedabad, Surat, and more.`;
+*Major cities:* Chennai (70+), Bangalore, Coimbatore, Madurai, Salem, Trichy, Tirupati, Surat, Ahmedabad, Dubai`;
+          }
         }
         else if (messageTextLower.match(/\b(thank|thanks|appreciate)\b/)) {
           replyText = `You're welcome. Happy to help.
@@ -277,11 +331,17 @@ Our services start from:
 Type *"menu"* for complete price list or name a specific service you're interested in.`;
       }
       else if (messageTextLower.match(/\b(where|location|address|near|nearby|outlet|branch|shop)\b/)) {
-        replyText = `We have 100+ outlets across India.
+        // Check if user mentioned a city
+        const detectedCity = detectLocation(messageText);
+        if (detectedCity) {
+          replyText = franchiseService.getOutletsByLocation(detectedCity);
+        } else {
+          replyText = `We have ${outletsData.totalOutlets}+ outlets across India & Dubai.
 
 Please share your city name, and I'll help you find the nearest McKingstown outlet.
 
-We're present in: Chennai, Bangalore, Mumbai, Delhi, Hyderabad, Pune, Ahmedabad, Surat, Coimbatore, and many more cities.`;
+*Present in:* Chennai (70+), Bangalore, Coimbatore, Madurai, Salem, Trichy, Tirupati, Surat, Ahmedabad, Dubai & more!`;
+        }
       }
       else if (messageTextLower.match(/\b(thank|thanks|appreciate|good|great|nice|awesome)\b/)) {
         replyText = `You're welcome. Happy to help.
