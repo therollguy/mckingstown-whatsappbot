@@ -159,11 +159,17 @@ We'll confirm your booking shortly.`;
 We're here 7 days a week. Need help with anything else?`;
       }
       else if (intent === 'Location') {
-        replyText = `▸ *Find Your Nearest McKingstown Outlet*
+        // Check if a city is already mentioned in the message
+        const detectedCity = detectLocation(messageText);
+        if (detectedCity) {
+          replyText = franchiseService.getOutletsByLocation(detectedCity);
+        } else {
+          replyText = `▸ *Find Your Nearest McKingstown Outlet*
 
 We have 100+ outlets across India.
 
 Please share your city name, and I'll help you find the closest branch.`;
+        }
       }
       else if (intent.includes('Welcome') || intent === 'Greeting') {
         replyText = `▸ *Welcome to McKingstown Men's Salon*
@@ -198,11 +204,17 @@ Type:
 What service are you interested in?`;
         }
         else if (messageTextLower.match(/\b(where|location|address|near|nearby|outlet)\b/)) {
-          replyText = `We have 100+ outlets across India.
+          // Check if a city is mentioned
+          const detectedCity = detectLocation(messageText);
+          if (detectedCity) {
+            replyText = franchiseService.getOutletsByLocation(detectedCity);
+          } else {
+            replyText = `We have 100+ outlets across India.
 
 Please share your city name, and I'll help you find the nearest McKingstown outlet.
 
 Major cities: Chennai, Bangalore, Mumbai, Delhi, Hyderabad, Pune, Ahmedabad, Surat, and more.`;
+          }
         }
         else if (messageTextLower.match(/\b(thank|thanks|appreciate)\b/)) {
           replyText = `You're welcome. Happy to help.
@@ -246,11 +258,17 @@ Our services start from:
 Type *"menu"* for complete price list or specify which service you're interested in.`;
       }
       else if (messageTextLower.match(/\b(where|location|address|near|nearby|outlet|branch|shop|find)\b/)) {
-        replyText = `We have 100+ outlets across India.
+        // Check if a city is mentioned in the location query
+        const detectedCity = detectLocation(messageText);
+        if (detectedCity) {
+          replyText = franchiseService.getOutletsByLocation(detectedCity);
+        } else {
+          replyText = `We have 100+ outlets across India.
 
 Please share your city name, and I'll help you find the nearest McKingstown outlet.
 
 We're present in: Chennai, Bangalore, Mumbai, Delhi, Hyderabad, Pune, Ahmedabad, Surat, Coimbatore, and many more cities.`;
+        }
       }
       else if (messageTextLower.match(/\b(time|timing|hour|open|close|schedule|available|when)\b/)) {
         replyText = `▸ *McKingstown Opening Hours*
@@ -286,8 +304,13 @@ You can ask me about:
 
 Just ask naturally, and I'll help you find what you need.`;
       }
+      // Check if message is just a city name (fallback at the end)
       else {
-        replyText = `I'm here to help you with McKingstown Men's Salon.
+        const detectedCity = detectLocation(messageText);
+        if (detectedCity) {
+          replyText = franchiseService.getOutletsByLocation(detectedCity);
+        } else {
+          replyText = `I'm here to help you with McKingstown Men's Salon.
 
 You can ask me things like:
   "What's the price for a haircut?"
@@ -297,6 +320,7 @@ You can ask me things like:
   "Tell me about franchise opportunities"
 
 Or type *"menu"* for complete service list. How can I assist you?`;
+        }
       }
     }
 

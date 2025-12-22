@@ -369,9 +369,14 @@ You can ask me about:
 
 Just ask naturally, and I'll help you find what you need.`;
       }
+      // Check if message is just a city name (fallback at the end)
       else {
-        // True conversational fallback
-        replyText = `I'm here to help you with McKingstown Men's Salon.
+        const detectedCity = detectLocation(messageText);
+        if (detectedCity) {
+          replyText = franchiseService.getOutletsByLocation(detectedCity);
+        } else {
+          // True conversational fallback
+          replyText = `I'm here to help you with McKingstown Men's Salon.
 
 You can ask me things like:
   "What's the price for a haircut?"
@@ -381,6 +386,7 @@ You can ask me things like:
   "Tell me about franchise opportunities"
 
 Or type *"menu"* for complete service list. How can I assist you?`;
+        }
       }
     }
 
