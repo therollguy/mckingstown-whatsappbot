@@ -10,6 +10,10 @@ class LLMService {
     this.enabled = process.env.ENABLE_GEMINI_FALLBACK === 'true' && !!this.apiKey;
     this.mockMode = !this.enabled;
 
+    // If we detect a permanently broken config (e.g., invalid API key),
+    // we can disable Gemini for the rest of the process to avoid repeated retries.
+    this.disabledReason = null;
+
     // NOTE: The REST endpoint already includes `/models/` in the path.
     // Users sometimes paste model names returned by ListModels (e.g. `models/gemini-2.0-flash`).
     // Normalize to the short form expected in the URL segment.
@@ -137,6 +141,13 @@ class LLMService {
 `;
   }
 
+  #disableGemini(reason) {
+    if (this.disabledReason) return;
+    this.disabledReason = reason || 'disabled';
+    this.enabled = false;
+    this.mockMode = true;
+  }
+
   /**
    * Get intelligent response using Gemini AI
    * @param {string} userMessage - User's question
@@ -156,7 +167,7 @@ class LLMService {
     if (this.mockMode) {
       return {
         text: this.getMockIntelligentResponse(userMessage),
-        meta: { attempted: false, mode: 'mock', reason: 'disabled' }
+        meta: { attempted: false, mode: 'mock', reason: this.disabledReason || 'disabled' }
       };
     }
 
@@ -195,11 +206,26 @@ Response:`;
       
     } catch (error) {
       console.error('❌ Gemini API Error:', error.message);
+
+      // Circuit breaker: invalid API key will never succeed until env var is fixed.
+      // Avoid spamming retries on every message (adds latency and noise).
+      const msg = (error && error.message) ? String(error.message) : '';
+      if (msg.includes('API_KEY_INVALID') || msg.includes('API key not valid')) {
+        this.disabledReason = 'api_key_invalid';
+        this.enabled = false;
+        this.mockMode = true;
+        console.error('🛑 Disabling Gemini fallback for this process (invalid API key). Fix GEMINI_API_KEY and restart the server.');
+      }
       
       // Fallback to pattern-based response
       return {
         text: this.getMockIntelligentResponse(userMessage),
-        meta: { attempted: true, mode: 'mock', reason: 'error', error: error.message }
+        meta: {
+          attempted: true,
+          mode: 'mock',
+          reason: this.disabledReason || 'error',
+          error: error.message
+        }
       };
     }
   }
@@ -265,6 +291,10 @@ Response:`;
   }
 
   async #generateWithRetry(prompt) {
+    if (!this.enabled) {
+      throw new Error('Gemini fallback disabled');
+    }
+
     // Try configured primary model first, then fallback models.
     const modelsToTry = [this.model, ...this.fallbackModels.filter(m => m !== this.model)];
 
@@ -279,6 +309,13 @@ Response:`;
         } catch (err) {
           lastError = err;
           const msg = err?.message || String(err);
+
+          // Permanent config errors: stop retrying immediately.
+          if (msg.includes('API_KEY_INVALID') || msg.includes('API key not valid')) {
+            this.#disableGemini('api_key_invalid');
+            throw err;
+          }
+
           // Keep trying other model/version pairs
           console.warn(`⚠️  Gemini attempt failed (${apiVersion}/${modelName}): ${msg}`);
         }
@@ -311,6 +348,13 @@ Response:`;
 
     if (resp.status < 200 || resp.status >= 300) {
       const errText = typeof resp.data === 'string' ? resp.data : JSON.stringify(resp.data);
+
+      // If the key is invalid, disable Gemini for the rest of the process to avoid
+      // repeated retries on subsequent user messages.
+      if (errText.includes('API_KEY_INVALID') || errText.includes('API key not valid')) {
+        this.#disableGemini('api_key_invalid');
+      }
+
       throw new Error(`HTTP ${resp.status} ${errText}`);
     }
 

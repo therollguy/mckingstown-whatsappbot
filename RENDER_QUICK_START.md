@@ -126,6 +126,12 @@ Expected response:
 → No line breaks in Base64 value
 → Paste the entire Base64 output
 
+### "API key not valid" / "API_KEY_INVALID" (Gemini)
+→ Your `GEMINI_API_KEY` is missing or wrong in Render
+→ Fix: create an API key in Google AI Studio (Gemini API) and paste it into Render env var `GEMINI_API_KEY`
+→ Then redeploy / restart service
+→ Tip: make sure there are **no quotes, spaces, or line breaks** in the key value
+
 ### "Port already in use"
 → Render uses PORT=10000 (already configured)
 
