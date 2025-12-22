@@ -421,13 +421,32 @@ You can ask me about:
 
 Just ask naturally, and I'll help you find what you need.`;
       }
-      // Check if message is just a city name (fallback at the end)
+      // PRIORITY 4: Use LLM for intelligent response to ANY question
       else {
         const detectedCity = detectLocation(messageText);
         if (detectedCity) {
+          // If city mentioned, show outlets
           replyText = franchiseService.getOutletsByLocation(detectedCity);
+        } else if (llmService.shouldUseLLM(messageText)) {
+          // Use AI for complex/conversational queries
+          try {
+            replyText = await llmService.getIntelligentResponse(messageText);
+          } catch (error) {
+            console.error('LLM Error:', error);
+            // Fallback to default
+            replyText = `I'm here to help you with McKingstown Men's Salon.
+
+You can ask me things like:
+  "What's the price for a haircut?"
+  "When are you open?"
+  "Where's the nearest outlet?"
+  "I want to book an appointment"
+  "Tell me about franchise opportunities"
+
+Or type *"menu"* for complete service list. How can I assist you?`;
+          }
         } else {
-          // True conversational fallback
+          // Generic fallback for simple commands
           replyText = `I'm here to help you with McKingstown Men's Salon.
 
 You can ask me things like:
