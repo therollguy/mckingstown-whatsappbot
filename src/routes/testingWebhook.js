@@ -6,6 +6,36 @@ const franchiseService = require('../services/franchiseService');
 const outletsData = require('../data/outlets');
 
 /**
+ * Detect date/time expressions in message
+ */
+function detectDateTime(message) {
+  const messageLower = message.toLowerCase();
+  
+  // Date patterns
+  const datePatterns = [
+    /\b(today|tonight|now|asap)\b/,
+    /\b(tomorrow|tmrw|tommorow)\b/,
+    /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/,
+    /\b(next (week|month|monday|tuesday|wednesday|thursday|friday|saturday|sunday))\b/,
+    /\b(this (evening|afternoon|morning|week|weekend))\b/,
+    /\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b/, // Date formats like 22/12/2025
+    /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]* \d{1,2}\b/i // Dec 22
+  ];
+  
+  // Time patterns
+  const timePatterns = [
+    /\b\d{1,2}(:\d{2})?(\s)?(am|pm|AM|PM)\b/, // 10am, 10:30pm
+    /\b(morning|afternoon|evening|night)\b/,
+    /\b\d{1,2}\s?(o'?clock)\b/ // 10 oclock
+  ];
+  
+  const hasDate = datePatterns.some(pattern => pattern.test(messageLower));
+  const hasTime = timePatterns.some(pattern => pattern.test(messageLower));
+  
+  return { hasDate, hasTime, hasDateTime: hasDate || hasTime };
+}
+
+/**
  * Detect city/location in message
  */
 function detectLocation(message) {
@@ -216,6 +246,33 @@ Please share your city name, and I'll help you find the nearest McKingstown outl
 Major cities: Chennai, Bangalore, Mumbai, Delhi, Hyderabad, Pune, Ahmedabad, Surat, and more.`;
           }
         }
+        // Check for appointment follow-up (date/time provided)
+        else if (detectDateTime(messageText).hasDateTime) {
+          const detectedCity = detectLocation(messageText);
+          if (detectedCity) {
+            replyText = `▸ *Appointment Booking*
+
+✅ Date/Time: ${messageText}
+✅ Location: ${detectedCity}
+
+I've noted your booking request.
+
+To confirm your appointment:
+📞 Please call the nearest outlet:
+
+${franchiseService.getOutletsByLocation(detectedCity)}
+
+Or share your contact number and we'll call you back.`;
+          } else {
+            replyText = `▸ *Appointment Booking*
+
+✅ Date/Time: ${messageText}
+
+Great! Now please share your city/location, and I'll help you book at the nearest outlet.
+
+Example: "Chennai", "Bangalore", "Coimbatore", etc.`;
+          }
+        }
         else if (messageTextLower.match(/\b(thank|thanks|appreciate)\b/)) {
           replyText = `You're welcome. Happy to help.
 
@@ -256,6 +313,33 @@ Our services start from:
   ➤ Wedding Packages - ₹2,999
 
 Type *"menu"* for complete price list or specify which service you're interested in.`;
+      }
+      // Check for appointment context (date/time provided)
+      else if (detectDateTime(messageText).hasDateTime) {
+        const detectedCity = detectLocation(messageText);
+        if (detectedCity) {
+          replyText = `▸ *Appointment Booking*
+
+✅ Date/Time: ${messageText}
+✅ Location: ${detectedCity}
+
+I've noted your booking request.
+
+To confirm your appointment:
+📞 Please call the nearest outlet:
+
+${franchiseService.getOutletsByLocation(detectedCity)}
+
+Or share your contact number and we'll call you back.`;
+        } else {
+          replyText = `▸ *Appointment Booking*
+
+✅ Date/Time: ${messageText}
+
+Great! Now please share your city/location, and I'll help you book at the nearest outlet.
+
+Example: "Chennai", "Bangalore", "Coimbatore", etc.`;
+        }
       }
       else if (messageTextLower.match(/\b(where|location|address|near|nearby|outlet|branch|shop|find)\b/)) {
         // Check if a city is mentioned in the location query
