@@ -50,8 +50,8 @@ function detectLocation(message) {
   }
   
   const cityVariations = {
-    'chennai': ['chennai', 'madras'],
-    'bangalore': ['bangalore', 'bengaluru'],
+    'chennai': ['chennai', 'madras', 'tambaram', 'velachery', 'adyar', 'annanagar', 'anna nagar', 't nagar', 'tnagar', 'kilpauk', 'perambur', 'chrompet', 'chitlapakkam', 'pallavaram', 'pammal', 'medavakkam', 'sholinganallur', 'perungudi', 'thoraipakkam', 'porur', 'kk nagar', 'ashok nagar', 'vadapalani', 'kodambakkam', 'guindy', 'saidapet', 'mylapore', 'triplicane', 'egmore', 'royapettah', 'nungambakkam', 'valasaravakkam'],
+    'bangalore': ['bangalore', 'bengaluru', 'blr'],
     'coimbatore': ['coimbatore', 'cbe'],
     'madurai': ['madurai'],
     'trichy': ['trichy', 'tiruchirappalli'],
@@ -116,6 +116,7 @@ router.post('/test', async (req, res) => {
     const intent = dialogflowResponse.intent;
     const confidence = dialogflowResponse.confidence;
     let replyText;
+    let llmDebug = null;
 
     // PRIORITY 1: Check for explicit keywords first
     if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('all services')) {
@@ -179,8 +180,8 @@ Please share:
 
 We'll confirm your booking shortly.`;
     }
-    // PRIORITY 2: High confidence Dialogflow intents
-    else if (intent && confidence > 0.6) {
+    // PRIORITY 2: High confidence Dialogflow intents (ignore Dialogflow's Default Fallback Intent)
+    else if (intent && confidence > 0.6 && intent !== 'Default Fallback Intent') {
       if (intent === 'Timing') {
         replyText = `▸ *McKingstown Opening Hours*
 
@@ -287,7 +288,21 @@ Feel free to reach out anytime for grooming services or appointments.
 Visit us at: www.mckingstown.com`;
         }
         else {
-          replyText = `I'm here to help you with:
+          // If Dialogflow couldn't match anything meaningful, try Gemini fallback (if enabled)
+          if (llmService.shouldUseLLM(messageText)) {
+            try {
+              const llmResult = await llmService.getIntelligentResponseWithMeta(messageText);
+              replyText = llmResult.text;
+              llmDebug = llmResult.meta;
+            } catch (error) {
+              console.error('Gemini fallback error:', error.message);
+              replyText = null;
+              llmDebug = { attempted: true, mode: 'mock', reason: 'error', error: error.message };
+            }
+          }
+
+          if (!replyText) {
+            replyText = `I'm here to help you with:
 
 ▸ Service prices and information
 ▸ Booking appointments
@@ -295,6 +310,7 @@ Visit us at: www.mckingstown.com`;
 ▸ Franchise opportunities
 
 Please let me know what you're looking for, or type *"menu"* to see all services.`;
+          }
         }
       }
       else {
@@ -389,42 +405,143 @@ You can ask me about:
 
 Just ask naturally, and I'll help you find what you need.`;
       }
-      // PRIORITY 4: Use LLM for intelligent response to ANY question
-      else {
+      // Check for contact/phone queries
+      else if (messageTextLower.match(/\b(contact|phone|number|call|reach|connect|talk|speak|saloon|salon)\b/)) {
         const detectedCity = detectLocation(messageText);
         if (detectedCity) {
-          // If city mentioned, show outlets
           replyText = franchiseService.getOutletsByLocation(detectedCity);
-        } else if (llmService.shouldUseLLM(messageText)) {
-          // Use AI for complex/conversational queries
-          try {
-            replyText = await llmService.getIntelligentResponse(messageText);
-          } catch (error) {
-            console.error('LLM Error:', error);
-            // Fallback to default
+        } else {
+          replyText = `▸ *Contact McKingstown*
+
+To contact your nearest outlet:
+
+1️⃣ Share your city name (e.g., "Chennai", "Bangalore")
+2️⃣ I'll show you outlet addresses & phone numbers
+
+For franchise inquiries:
+Type *"franchise"* for investment details.
+
+Which city are you in?`;
+        }
+      }
+      // Check for nearest/location queries (catch "nearest saloon", "where", etc.)
+      else if (messageTextLower.match(/\b(nearest|nearby|close|find|search|available)\b/)) {
+        const detectedCity = detectLocation(messageText);
+        if (detectedCity) {
+          replyText = franchiseService.getOutletsByLocation(detectedCity);
+        } else {
+          replyText = `We have ${outletsData.totalOutlets}+ outlets across India & Dubai.
+
+Please share your city name, and I'll help you find the nearest McKingstown outlet.
+
+*Present in:* Chennai (70+), Bangalore, Coimbatore, Madurai, Salem, Trichy, Tirupati, Surat, Ahmedabad, Dubai & more!`;
+        }
+      }
+      // Check for product/quality questions
+      else if (messageTextLower.match(/\b(product|products|brand|quality|use|eco|friendly|green|natural|organic)\b/)) {
+        replyText = `▸ *McKingstown Quality Standards*
+
+✅ We use *premium branded products* for all services
+✅ *Hygienic practices* maintained at all outlets
+✅ *Professional-grade* equipment
+✅ *Trained stylists* with 10+ years experience
+
+*Our Promise:*
+Quality service at affordable prices - that's what makes us India's trusted grooming destination.
+
+Type *"menu"* to see our services!`;
+      }
+      // Check for why/comparison questions
+      else if (messageTextLower.match(/\b(why|difference|different|better|best|special|choose|prefer)\b/)) {
+        replyText = `▸ *Why Choose McKingstown?*
+
+➤ *Affordable Luxury* - Premium services at reasonable prices
+  (Haircuts from just ₹75!)
+
+➤ *Experience* - Over 10+ years in men's grooming
+
+➤ *Extensive Network* - 134+ outlets for convenience
+  (Chennai 70+, Bangalore, Coimbatore, Dubai & more)
+
+➤ *Skilled Team* - Professional barbers & stylists
+
+➤ *Quality Products* - Branded grooming products
+
+➤ *Complete Services* - Haircut to wedding packages
+
+We combine professional quality with affordable pricing!
+
+Type *"menu"* to explore our services.`;
+      }
+      // Check for company/about questions
+      else if (messageTextLower.match(/\b(company|about|who are you|tell me about|business|history|started|founded|owner)\b/)) {
+        replyText = `▸ *About McKingstown*
+
+👑 India's Premier Men's Grooming Chain
+
+*Our Journey:*
+✅ 10+ years of grooming excellence
+✅ Started from single outlet to 134+ locations
+✅ Present across India & Dubai
+✅ Trusted by millions of customers
+
+*Our Mission:*
+Make premium grooming accessible and affordable for every man.
+
+*Expansion:*
+Growing rapidly with franchise opportunities across India.
+
+Type *"franchise"* for business opportunities!`;
+      }
+      // Check for employee/staff questions
+      else if (messageTextLower.match(/\b(employee|staff|barber|stylist|team|work|career|job|hiring)\b/)) {
+        replyText = `▸ *McKingstown Team*
+
+👨‍💼 *Our Professionals:*
+✅ Skilled barbers & stylists at 134+ outlets
+✅ Professional training provided
+✅ Years of grooming expertise
+✅ Customer-focused service
+
+*Career Opportunities:*
+We're always looking for talented professionals!
+
+📞 Contact your nearest outlet for job inquiries.
+
+Type *"chennai"* or your city to find outlets near you!`;
+      }
+      // PRIORITY 4: Final fallback (city detection or generic help)
+      else {
+        // Check if city/location mentioned
+        const detectedCity = detectLocation(messageText);
+        if (detectedCity) {
+          replyText = franchiseService.getOutletsByLocation(detectedCity);
+        } else {
+          // Gemini fallback (only if enabled) otherwise generic help
+          if (llmService.shouldUseLLM(messageText)) {
+            try {
+              const llmResult = await llmService.getIntelligentResponseWithMeta(messageText);
+              replyText = llmResult.text;
+              llmDebug = llmResult.meta;
+            } catch (error) {
+              console.error('Gemini fallback error:', error.message);
+              replyText = null;
+              llmDebug = { attempted: true, mode: 'mock', reason: 'error', error: error.message };
+            }
+          }
+
+          if (!replyText) {
             replyText = `I'm here to help you with McKingstown Men's Salon.
 
 You can ask me things like:
   "What's the price for a haircut?"
   "When are you open?"
   "Where's the nearest outlet?"
-  "I want to book an appointment"
+  "Why choose McKingstown?"
   "Tell me about franchise opportunities"
 
 Or type *"menu"* for complete service list. How can I assist you?`;
           }
-        } else {
-          // Generic fallback
-          replyText = `I'm here to help you with McKingstown Men's Salon.
-
-You can ask me things like:
-  "What's the price for a haircut?"
-  "When are you open?"
-  "Where's the nearest outlet?"
-  "I want to book an appointment"
-  "Tell me about franchise opportunities"
-
-Or type *"menu"* for complete service list. How can I assist you?`;
         }
       }
     }
@@ -437,6 +554,7 @@ Or type *"menu"* for complete service list. How can I assist you?`;
       debug: {
         intent: intent,
         confidence: confidence,
+        llm: llmDebug,
         timestamp: new Date().toISOString()
       }
     });

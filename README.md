@@ -153,6 +153,9 @@ Health check endpoint.
 | `TWILIO_WHATSAPP_FROM` | Twilio WhatsApp number | `whatsapp:+14155238886` |
 | `DIALOGFLOW_PROJECT_ID` | Google Cloud Dialogflow project ID | `whatsapp-bot-mckingstown-tyiw` |
 | `GOOGLE_APPLICATION_CREDENTIALS` | Path to service account JSON | `./config/dialogflow-service-account.json` |
+| `ENABLE_GEMINI_FALLBACK` | Enable Gemini fallback for unknown messages | `true` |
+| `GEMINI_API_KEY` | Google Gemini API key | `AIza...` |
+| `GEMINI_MODEL` | Gemini model name | `gemini-2.5-flash` |
 | `PORT` | Server port (optional) | `3000` |
 | `NODE_ENV` | Environment (optional) | `development` or `production` |
 

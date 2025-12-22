@@ -1,14 +1,59 @@
 /**
  * Response Generator for McKingstown WhatsApp Bot - Professional Version
- * Generates formatted responses with professional icons
+ * Generates formatted responses with professional icons, media, and interactive elements
  */
 
 const services = require('../data/services');
+
+// Media URLs for rich responses
+const MEDIA_URLS = {
+  servicePriceList: 'https://www.mckingstown.in/images/price-list.jpg',
+  outletMap: 'https://www.mckingstown.in/images/outlet-map.jpg',
+  franchiseBrochure: 'https://www.mckingstown.in/pdfs/franchise-brochure.pdf',
+  haircutStyles: 'https://www.mckingstown.in/images/haircut-styles.jpg',
+  beardStyles: 'https://www.mckingstown.in/images/beard-styles.jpg',
+  weddingPackage: 'https://www.mckingstown.in/images/wedding-package.jpg'
+};
 
 class ResponseGenerator {
   /**
    * Format complete menu
    */
+  /**
+   * Get response with optional media
+   * @param {string} text - Response text
+   * @param {string} mediaType - Optional media type (servicesList, outlets, franchise, etc.)
+   * @returns {object} Response with text and optional mediaUrl
+   */
+  static createResponse(text, mediaType = null) {
+    const response = { text };
+    
+    if (mediaType && MEDIA_URLS[mediaType]) {
+      response.mediaUrl = MEDIA_URLS[mediaType];
+      response.hasMedia = true;
+    }
+    
+    return response;
+  }
+
+  /**
+   * Generate interactive button options
+   * @param {string} messageText - Main message
+   * @param {Array} buttons - Array of button objects {id, text}
+   * @returns {string} Formatted message with reply options
+   */
+  static createButtonMessage(messageText, buttons) {
+    let response = messageText + '\n\n';
+    response += '▸ *Quick Options:*\n';
+    
+    buttons.forEach((btn, index) => {
+      response += `  ${index + 1}️⃣ *${btn.text}*\n`;
+    });
+    
+    response += '\nReply with the number or type your choice.';
+    return response;
+  }
+
   static getCompleteMenu() {
     return `═══ *MCKINGSTOWN COMPLETE MENU* ═══
 

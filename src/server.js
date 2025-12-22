@@ -2,12 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const path = require('path');
+
+// Load environment variables BEFORE importing routes/services
+dotenv.config();
+
 const whatsappWebhook = require('./routes/whatsappWebhook');
 const dialogflowWebhook = require('./routes/dialogflowWebhook');
 const testingWebhook = require('./routes/testingWebhook');
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

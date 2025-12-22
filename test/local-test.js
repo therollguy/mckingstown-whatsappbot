@@ -6,8 +6,12 @@
 const axios = require('axios');
 
 // Your local or deployed webhook URL
-const WEBHOOK_URL = 'http://localhost:10000/webhook/whatsapp';
-// const WEBHOOK_URL = 'https://your-app.onrender.com/webhook/whatsapp'; // Use this for Render testing
+// NOTE: `/webhook/whatsapp` is a Twilio endpoint that returns TwiML (often `<Response/>`).
+// For FREE local testing and readable output, use `/webhook/test` (JSON) by default.
+const WEBHOOK_URL = process.env.TEST_WEBHOOK_URL || 'http://localhost:10000/webhook/test';
+// Examples:
+//   $env:TEST_WEBHOOK_URL='http://localhost:10000/webhook/test'; npm test
+//   $env:TEST_WEBHOOK_URL='https://your-app.onrender.com/webhook/test'; npm test
 
 // Test messages
 const testMessages = [
@@ -22,7 +26,11 @@ const testMessages = [
   'book',
   'when are you open?',
   'where is nearest outlet?',
-  'thanks'
+  'thanks',
+  // Unknown / conversational messages to verify Gemini fallback path
+  'Are you an AI model?',
+  'Tell me a joke',
+  'What is blockchain?'
 ];
 
 async function testMessage(message) {
@@ -31,18 +39,30 @@ async function testMessage(message) {
     console.log(`📩 Testing: "${message}"`);
     console.log('═'.repeat(60));
     
-    const response = await axios.post(WEBHOOK_URL, {
-      From: 'whatsapp:+919876543210', // Mock phone number
-      Body: message,
-      ProfileName: 'Test User'
-    }, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+    const response = await axios.post(
+      WEBHOOK_URL,
+      {
+        message,
+        sessionId: 'local-test',
+        from: 'whatsapp:+919876543210',
+        profileName: 'Test User'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       }
-    });
+    );
 
     console.log('✅ Response Status:', response.status);
-    console.log('📤 Response:', response.data);
+    if (response.data && typeof response.data === 'object') {
+      console.log('🤖 Bot:', response.data.response || '(no response field)');
+      if (response.data.debug) {
+        console.log('🧭 Debug:', JSON.stringify(response.data.debug));
+      }
+    } else {
+      console.log('📤 Response:', response.data);
+    }
     
     // Wait 2 seconds between tests to avoid rate limits
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -61,7 +81,14 @@ async function runTests() {
   
   // Test if server is running
   try {
-    await axios.get(WEBHOOK_URL.replace('/whatsapp', '/whatsapp'));
+    // Most of our endpoints are POST-only; do a lightweight POST ping.
+    await axios.post(WEBHOOK_URL, {
+      // Use a deterministic keyword so we don't consume Gemini quota during availability check.
+      message: 'menu',
+      sessionId: 'local-test',
+      from: 'whatsapp:+919876543210',
+      profileName: 'Test User'
+    });
     console.log('✅ Server is running\n');
   } catch (error) {
     console.error('❌ Server not reachable. Make sure your app is running!');

@@ -33,6 +33,11 @@ TWILIO_ACCOUNT_SID=your_twilio_account_sid_here
 TWILIO_AUTH_TOKEN=your_twilio_auth_token_here
 TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
 DIALOGFLOW_PROJECT_ID=whatsapp-bot-mckingstown-tyiw
+
+# Gemini fallback (LLM for unknown messages)
+ENABLE_GEMINI_FALLBACK=true
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
 **⚠️ Your Twilio Account SID MUST start with "AC"**

@@ -86,6 +86,12 @@ class TwilioService {
    * @returns {object} Twilio message response
    */
   async sendWhatsAppMessageWithMedia(to, message, mediaUrl) {
+    // Mock mode
+    if (this.mockMode) {
+      console.log('🖼️ MOCK: Would send media:', { to, mediaUrl });
+      return { success: true, messageSid: 'mock-media-' + Date.now(), mock: true };
+    }
+
     try {
       console.log('📤 Sending WhatsApp message with media:', {
         to,
@@ -113,6 +119,40 @@ class TwilioService {
     } catch (error) {
       console.error('❌ Twilio send media error:', error.message);
       throw new Error(`Failed to send WhatsApp message with media: ${error.message}`);
+    }
+  }
+
+  /**
+   * Send location message (WhatsApp location pin)
+   * @param {string} to - Recipient WhatsApp number
+   * @param {number} latitude - Location latitude
+   * @param {number} longitude - Location longitude
+   * @param {string} name - Location name
+   * @param {string} address - Location address
+   * @returns {object} Response
+   */
+  async sendLocation(to, latitude, longitude, name, address) {
+    // Mock mode
+    if (this.mockMode) {
+      console.log('📍 MOCK: Would send location:', { to, name, latitude, longitude });
+      return { success: true, messageSid: 'mock-location-' + Date.now(), mock: true };
+    }
+
+    try {
+      // WhatsApp location format: latitude,longitude|name|address
+      const locationMessage = `📍 *${name}*\n${address}\n\nGoogle Maps: https://maps.google.com/?q=${latitude},${longitude}`;
+      
+      const response = await this.client.messages.create({
+        from: this.whatsappFrom,
+        to: to,
+        body: locationMessage
+      });
+
+      console.log('✅ Location sent successfully');
+      return { success: true, messageSid: response.sid, status: response.status };
+    } catch (error) {
+      console.error('❌ Failed to send location:', error.message);
+      throw error;
     }
   }
 

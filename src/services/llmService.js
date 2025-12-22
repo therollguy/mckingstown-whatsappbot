@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const axios = require('axios');
 
 /**
  * LLM Service using Google Gemini for intelligent responses
@@ -7,14 +7,36 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 class LLMService {
   constructor() {
     this.apiKey = process.env.GEMINI_API_KEY;
-    this.mockMode = !this.apiKey;
+    this.enabled = process.env.ENABLE_GEMINI_FALLBACK === 'true' && !!this.apiKey;
+    this.mockMode = !this.enabled;
+
+    // NOTE: The REST endpoint already includes `/models/` in the path.
+    // Users sometimes paste model names returned by ListModels (e.g. `models/gemini-2.0-flash`).
+    // Normalize to the short form expected in the URL segment.
+    this.model = this.#normalizeModelName((process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim());
+    this.fallbackModels = (process.env.GEMINI_FALLBACK_MODELS || 'gemini-2.0-flash,gemini-2.5-flash,gemini-2.5-pro')
+      .split(',')
+      .map(s => this.#normalizeModelName(s.trim()))
+      .filter(Boolean);
+
+    // Prefer v1; fall back to v1beta for accounts/regions where v1 may not be enabled.
+    this.apiVersions = (process.env.GEMINI_API_VERSIONS || 'v1,v1beta')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    this.timeoutMs = Number(process.env.GEMINI_TIMEOUT_MS || 8000);
+    this.maxOutputTokens = Number(process.env.GEMINI_MAX_OUTPUT_TOKENS || 320);
+    this.temperature = Number(process.env.GEMINI_TEMPERATURE || 0.2);
     
-    if (this.mockMode) {
-      console.log('⚠️  GEMINI_API_KEY not set - LLM features limited to patterns');
+    if (!this.apiKey) {
+      console.log('⚠️  GEMINI_API_KEY not set - Gemini fallback disabled');
+    } else if (!this.enabled) {
+      console.log('ℹ️  Gemini fallback is OFF. Set ENABLE_GEMINI_FALLBACK=true to enable.');
     } else {
-      this.genAI = new GoogleGenerativeAI(this.apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
-      console.log('✅ Gemini AI initialized - Universal question answering enabled');
+      console.log('✅ Gemini fallback enabled');
+      console.log(`   Model: ${this.model}`);
+      console.log(`   API versions: ${this.apiVersions.join(', ')}`);
     }
     
     // McKingstown knowledge base for context
@@ -122,8 +144,20 @@ class LLMService {
    * @returns {Promise<string>} - AI-generated response
    */
   async getIntelligentResponse(userMessage, conversationContext = '') {
+    const result = await this.getIntelligentResponseWithMeta(userMessage, conversationContext);
+    return result.text;
+  }
+
+  /**
+   * Same as getIntelligentResponse, but returns metadata useful for debugging.
+   * @returns {Promise<{text: string, meta: { attempted: boolean, mode: 'gemini'|'mock', apiVersion?: string, modelName?: string, reason?: string, error?: string }}>
+   */
+  async getIntelligentResponseWithMeta(userMessage, conversationContext = '') {
     if (this.mockMode) {
-      return this.getMockIntelligentResponse(userMessage);
+      return {
+        text: this.getMockIntelligentResponse(userMessage),
+        meta: { attempted: false, mode: 'mock', reason: 'disabled' }
+      };
     }
 
     try {
@@ -151,19 +185,145 @@ Instructions:
 
 Response:`;
 
-      const result = await this.model.generateContent(prompt);
-      const response = result.response;
-      const text = response.text();
-      
-      console.log('🤖 Gemini AI Response Generated');
-      return text.trim();
+      const result = await this.#generateWithRetry(prompt);
+      console.log(`🤖 Gemini fallback response generated (${result.apiVersion}/${result.modelName})`);
+
+      return {
+        text: this.#trimToWhatsAppLimit(result.text),
+        meta: { attempted: true, mode: 'gemini', apiVersion: result.apiVersion, modelName: result.modelName }
+      };
       
     } catch (error) {
       console.error('❌ Gemini API Error:', error.message);
       
       // Fallback to pattern-based response
-      return this.getMockIntelligentResponse(userMessage);
+      return {
+        text: this.getMockIntelligentResponse(userMessage),
+        meta: { attempted: true, mode: 'mock', reason: 'error', error: error.message }
+      };
     }
+  }
+
+  /**
+   * Whether Gemini fallback is enabled
+   */
+  isEnabled() {
+    return this.enabled;
+  }
+
+  /**
+   * Conservative gating: only use Gemini when we have no deterministic answer.
+   * Avoids calling Gemini for commands, single-word keywords, and obvious intents.
+   */
+  shouldUseLLM(userMessage) {
+    if (!this.enabled) return false;
+    if (!userMessage || typeof userMessage !== 'string') return false;
+
+    const msg = userMessage.trim();
+    if (!msg) return false;
+    if (msg.length > 500) return false;
+
+    const lower = msg.toLowerCase();
+
+    // Skip common commands / high-confidence deterministic routes
+    const skipPatterns = [
+      /^menu$/,
+      /^help$/,
+      /^hi$/,
+      /^hello$/,
+      /^franchise$/,
+      /^haircut$/,
+      /^beard$/,
+      /^spa$/,
+      /^facial$/,
+      /^color$/,
+      /^massage$/,
+      /^wedding$/,
+      /^groom$/,
+      /^book$/,
+      /^appointment$/,
+      /^price$/,
+      /^timing(s)?$/,
+      /^location(s)?$/,
+      /^outlet(s)?$/
+    ];
+    if (skipPatterns.some(r => r.test(lower))) return false;
+
+    // If it's just a city name, let city detection handle it
+    if (/^[a-z\s]{2,30}$/.test(lower) && (lower.includes('chennai') || lower.includes('bangalore') || lower.includes('coimbatore') || lower.includes('madurai') || lower.includes('salem') || lower.includes('trichy') || lower.includes('tirupati') || lower.includes('surat') || lower.includes('ahmedabad') || lower.includes('dubai'))) {
+      return false;
+    }
+
+    return true;
+  }
+
+  #normalizeModelName(modelName) {
+    if (!modelName) return '';
+    const s = String(modelName).trim();
+    if (!s) return '';
+    return s.startsWith('models/') ? s.slice('models/'.length) : s;
+  }
+
+  async #generateWithRetry(prompt) {
+    // Try configured primary model first, then fallback models.
+    const modelsToTry = [this.model, ...this.fallbackModels.filter(m => m !== this.model)];
+
+    let lastError = null;
+    for (const apiVersion of this.apiVersions) {
+      for (const modelName of modelsToTry) {
+        try {
+          const text = await this.#generateOnce({ apiVersion, modelName, prompt });
+          if (text && typeof text === 'string') {
+            return { text, apiVersion, modelName };
+          }
+        } catch (err) {
+          lastError = err;
+          const msg = err?.message || String(err);
+          // Keep trying other model/version pairs
+          console.warn(`⚠️  Gemini attempt failed (${apiVersion}/${modelName}): ${msg}`);
+        }
+      }
+    }
+
+    throw lastError || new Error('Gemini fallback failed');
+  }
+
+  async #generateOnce({ apiVersion, modelName, prompt }) {
+    const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${encodeURIComponent(modelName)}:generateContent?key=${this.apiKey}`;
+
+    const body = {
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: prompt }]
+        }
+      ],
+      generationConfig: {
+        temperature: this.temperature,
+        maxOutputTokens: this.maxOutputTokens
+      }
+    };
+
+    const resp = await axios.post(url, body, {
+      timeout: this.timeoutMs,
+      validateStatus: () => true
+    });
+
+    if (resp.status < 200 || resp.status >= 300) {
+      const errText = typeof resp.data === 'string' ? resp.data : JSON.stringify(resp.data);
+      throw new Error(`HTTP ${resp.status} ${errText}`);
+    }
+
+    const candidates = resp.data?.candidates;
+    const text = candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join('') || '';
+    return text.trim();
+  }
+
+  #trimToWhatsAppLimit(text) {
+    const max = 3800; // keep margin under WhatsApp 4096
+    const t = (text || '').trim();
+    if (t.length <= max) return t;
+    return t.slice(0, max - 50).trimEnd() + '\n\n▸ Type *"menu"* for services.';
   }
 
   /**
@@ -234,40 +394,6 @@ I can provide information about:
   ➤ Franchise Opportunities
 
 Type *"menu"* for complete service list, or ask me anything about McKingstown!`;
-  }
-
-  /**
-   * Check if message needs LLM processing (not a simple keyword match)
-   * @param {string} message - User message
-   * @returns {boolean} - True if should use LLM
-   */
-  shouldUseLLM(message) {
-    const messageLower = message.toLowerCase();
-    
-    // Skip LLM for simple keyword queries (faster response)
-    const simpleKeywords = [
-      'menu', 'price list', 'franchise', 'haircut', 'beard', 
-      'facial', 'spa', 'color', 'wedding', 'massage'
-    ];
-    
-    for (const keyword of simpleKeywords) {
-      if (messageLower === keyword || messageLower === `show ${keyword}`) {
-        return false; // Use fast keyword response
-      }
-    }
-    
-    // Use LLM for:
-    // - Questions (who, what, when, where, why, how)
-    // - Complex sentences
-    // - Conversational phrases
-    // - Multi-word queries not matching patterns
-    
-    const needsLLM = 
-      message.split(' ').length > 3 || // Multi-word query
-      messageLower.match(/\b(who|what|when|where|why|how|can|could|would|should|do you|are you|tell me|explain|difference|compare|better|best)\b/) ||
-      messageLower.match(/\b(hello|hi|hey|thanks|thank you|good|great|awesome|nice)\b/);
-    
-    return needsLLM;
   }
 }
 
