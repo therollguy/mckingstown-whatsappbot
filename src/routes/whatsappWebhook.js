@@ -16,6 +16,7 @@ const outletsData = require('../data/outlets');
 const llmService = require('../services/llmService');
 const patternMatcher = require('../utils/patternMatcher');
 const franchiseForwardingService = require('../services/franchiseForwardingService');
+const conversationContext = require('../utils/conversationContext');
 
 /**
  * Detect date/time expressions in message
@@ -136,8 +137,32 @@ router.post('/whatsapp', async (req, res) => {
       matched: patternResult.matched
     });
 
+    // Get user conversation context
+    const userContext = conversationContext.getUserContext(userPhone);
+    console.log('💬 User Context:', userContext ? userContext.intent : 'none');
+
+    // PRIORITY 0: Handle user's initial choice (services vs franchise)
+    if (!userContext && (messageTextLower.includes('service') || messageTextLower === '1')) {
+      conversationContext.setUserContext(userPhone, conversationContext.IntentTypes.SERVICES);
+      replyText = `✅ *Great! I'll help you with our services.*
+
+You can ask about:
+  ➤ *"haircut"* - Haircut services & prices
+  ➤ *"beard"* - Beard grooming
+  ➤ *"facial"* - Facial treatments
+  ➤ *"spa"* - Hair spa services
+  ➤ *"menu"* - Complete price list
+  ➤ *"book"* - Book appointment
+  ➤ *"location"* - Find nearest outlet
+
+What service are you interested in?`;
+    }
+    else if (!userContext && (messageTextLower.includes('franchise') || messageTextLower.includes('business') || messageTextLower === '2')) {
+      conversationContext.setUserContext(userPhone, conversationContext.IntentTypes.FRANCHISE);
+      replyText = franchiseService.getOverview();
+    }
     // PRIORITY 1: Direct commands (menu, help) - Highest priority
-    if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('all services')) {
+    else if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('all services')) {
       replyText = ResponseGenerator.getCompleteMenu();
     }
     // PRIORITY 2: Pattern-based service detection (confidence > 0.5)
@@ -145,6 +170,11 @@ router.post('/whatsapp', async (req, res) => {
       const patternIntent = patternResult.intent;
       
       if (patternIntent === 'franchise') {
+        // Set franchise context if not already set
+        if (!conversationContext.isInFranchiseFlow(userPhone)) {
+          conversationContext.setUserContext(userPhone, conversationContext.IntentTypes.FRANCHISE);
+        }
+        
         // Auto-forward franchise enquiry to regional advisor and log in dashboard
         try {
           console.log('🚨 Franchise enquiry detected - initiating forwarding process');
@@ -243,7 +273,13 @@ We're here 7 days a week. Need help with anything else?`;
       }
       else if (patternIntent === 'location') {
         const detectedCity = detectLocation(messageText);
-        if (detectedCity) {
+        
+        // Check if user is in franchise context
+        if (conversationContext.isInFranchiseFlow(userPhone) && detectedCity) {
+          // Show franchise information for that location
+          replyText = franchiseService.getLocationResponse(detectedCity);
+        } else if (detectedCity) {
+          // Show outlets for services
           replyText = franchiseService.getOutletsByLocation(detectedCity);
         } else {
           replyText = `▸ *Find Your Nearest McKingstown Outlet*
@@ -308,24 +344,28 @@ Please share:
 We'll confirm your booking shortly.`;
       }
       else if (intent.includes('Welcome') || intent === 'Greeting' || intent === 'Default Welcome Intent') {
-        replyText = `▸ *Welcome to McKingstown Men's Salon*
+        // Clear any previous context on new greeting
+        conversationContext.clearUserContext(userPhone);
+        replyText = `▸ *Welcome to McKingstown Men's Salon* 👑
 
 India's Premier Grooming Destination
-*100+ Outlets | Now in Dubai*
+*134+ Outlets | Now in Dubai*
 
-▸ *For Customers:*
-  ➤ Type *"haircut"* - Haircut prices (₹75+)
-  ➤ Type *"beard"* - Beard services (₹40+)
-  ➤ Type *"facial"* - Facial services (₹300+)
-  ➤ Type *"menu"* - Complete price list
-  ➤ Type *"book"* - Book appointment
+━━━━━━━━━━━━━━━━━━━━━━━
 
-▸ *For Business Partners:*
-  ➤ Type *"franchise"* - Investment opportunity (₹19L)
+*How can I help you today?*
 
-▸ 10+ years experience | Premium quality at affordable prices
+*1️⃣ SERVICES* - Haircut, Beard, Facial, Spa
+   (Book appointments, prices, outlets)
 
-How can I assist you today?`;
+*2️⃣ FRANCHISE* - Business Opportunity
+   (Investment: ₹19L | ROI: 41-125%)
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Please reply with:
+➤ *1* or *"services"* for customer services
+➤ *2* or *"franchise"* for business opportunity`;
       }
       else if (intent === 'Thanks' || intent === 'Thank You') {
         replyText = `You're welcome! Happy to help.\n\nIs there anything else you'd like to know about:\n  \u27a4 Services & pricing\n  \u27a4 Booking appointments\n  \u27a4 Outlet locations\n  \u27a4 Franchise opportunities`;
@@ -355,8 +395,14 @@ What service are you interested in?`;
       }
       else if (messageTextLower.match(/\b(where|location|address|near|nearby|outlet)\b/)) {
         const detectedCity = detectLocation(messageText);
+        
         if (detectedCity) {
-          replyText = franchiseService.getOutletsByLocation(detectedCity);
+          // Context-aware: franchise users get franchise info, service users get outlets
+          if (conversationContext.isInFranchiseFlow(userPhone)) {
+            replyText = franchiseService.getLocationResponse(detectedCity);
+          } else {
+            replyText = franchiseService.getOutletsByLocation(detectedCity);
+          }
         } else {
           replyText = `We have ${outletsData.totalOutlets}+ outlets across India & Dubai.
 
@@ -391,7 +437,15 @@ Please share your city name, and I'll help you find the nearest McKingstown outl
       else {
         const detectedCity = detectLocation(messageText);
         if (detectedCity) {
-          replyText = franchiseService.getOutletsByLocation(detectedCity);
+          // User just typed a city name - respond based on context
+          if (conversationContext.isInFranchiseFlow(userPhone)) {
+            replyText = franchiseService.getLocationResponse(detectedCity);
+          } else if (conversationContext.isInServicesFlow(userPhone)) {
+            replyText = franchiseService.getOutletsByLocation(detectedCity);
+          } else {
+            // No context - ask what they're looking for
+            replyText = `I see you're interested in ${detectedCity}.\n\nAre you looking for:\n\n*1* - Services (book appointment, find outlets)\n*2* - Franchise opportunity\n\nPlease reply 1 or 2.`;
+          }
         } else if (llmService.shouldUseLLM(messageText)) {
           try {
             replyText = await llmService.getIntelligentResponse(messageText);
@@ -402,7 +456,39 @@ Please share your city name, and I'll help you find the nearest McKingstown outl
         }
 
         if (!replyText) {
-          replyText = `I'm here to help with McKingstown services.\n\nYou can ask about:\n  \u27a4 Service prices (haircut, beard, facial, spa)\n  \u27a4 Booking appointments\n  \u27a4 Finding outlets\n  \u27a4 Franchise opportunities\n\nType *\"menu\"* for full service list. How can I assist you?`;
+          // If no context, show initial choice
+          if (!userContext) {
+            replyText = `▸ *Welcome to McKingstown Men's Salon* 👑
+
+India's Premier Grooming Destination
+*134+ Outlets | Now in Dubai*
+
+═══════════════════════
+
+*How can I help you today?*
+
+*1️⃣ SERVICES* - Haircut, Beard, Facial, Spa
+   (Book appointments, prices, outlets)
+
+*2️⃣ FRANCHISE* - Business Opportunity
+   (Investment: ₹19L | ROI: 41-125%)
+
+═══════════════════════
+
+Please reply with:
+➤ *1* or *"services"* for customer services
+➤ *2* or *"franchise"* for business opportunity`;
+          } else {
+            replyText = `I'm here to help with McKingstown services.
+
+You can ask about:
+  ➤ Service prices (haircut, beard, facial, spa)
+  ➤ Booking appointments
+  ➤ Finding outlets
+  ➤ Franchise opportunities
+
+Type *"menu"* for full service list. How can I assist you?`;
+          }
         }
       }
     }

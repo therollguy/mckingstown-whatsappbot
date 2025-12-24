@@ -6,6 +6,7 @@ const franchiseService = require('../services/franchiseService');
 const outletsData = require('../data/outlets');
 const llmService = require('../services/llmService');
 const patternMatcher = require('../utils/patternMatcher');
+const conversationContext = require('../utils/conversationContext');
 const franchiseForwardingService = require('../services/franchiseForwardingService');
 
 /**
