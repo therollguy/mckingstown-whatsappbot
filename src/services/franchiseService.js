@@ -132,8 +132,8 @@ const franchiseData = {
 // State-wise franchise officers
 const franchiseOfficers = {
   'tamil nadu': {
-    name: 'Rajesh Kumar',
-    phone: '+918939000151',
+    name: 'Naresh',
+    phone: '+918608334398',
     cities: ['chennai', 'coimbatore', 'madurai', 'trichy', 'salem', 'tirupati'],
     state: 'Tamil Nadu'
   },

@@ -211,8 +211,13 @@ async function forwardFranchiseEnquiry(customerPhone, customerMessage, customerN
       throw new Error('Twilio client not configured');
     }
     
+    const fromNumber = process.env.TWILIO_WHATSAPP_FROM || process.env.TWILIO_WHATSAPP_NUMBER;
+    if (!fromNumber) {
+      throw new Error('Twilio WhatsApp number not configured in environment variables');
+    }
+    
     const message = await client.messages.create({
-      from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+      from: fromNumber,
       to: `whatsapp:${advisor.whatsappNumber}`,
       body: forwardMessage
     });
@@ -315,8 +320,13 @@ async function sendCustomerConfirmation(customerPhone, leadId, forwarded = true)
       throw new Error('Twilio client not configured');
     }
     
+    const fromNumber = process.env.TWILIO_WHATSAPP_FROM || process.env.TWILIO_WHATSAPP_NUMBER;
+    if (!fromNumber) {
+      throw new Error('Twilio WhatsApp number not configured in environment variables');
+    }
+    
     const message = await client.messages.create({
-      from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+      from: fromNumber,
       to: `whatsapp:${customerPhone}`,
       body: confirmationMessage
     });
