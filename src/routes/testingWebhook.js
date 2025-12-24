@@ -129,15 +129,101 @@ router.post('/test', async (req, res) => {
       matched: patternResult.matched
     });
 
+    // Get user conversation context (using sessionId as userPhone for testing)
+    const userContext = conversationContext.getUserContext(sessionId);
+    console.log('💬 [TEST] User Context:', userContext ? userContext.intent : 'none');
+
+    // PRIORITY 0: Handle user's initial choice (services vs franchise)
+    if (!userContext && (messageTextLower.includes('service') || messageTextLower === '1')) {
+      conversationContext.setUserContext(sessionId, conversationContext.IntentTypes.SERVICES);
+      replyText = `✅ *Great! I'll help you with our services.*
+
+You can ask about:
+  ➤ *"haircut"* - Haircut services & prices
+  ➤ *"beard"* - Beard grooming
+  ➤ *"facial"* - Facial treatments
+  ➤ *"spa"* - Hair spa services
+  ➤ *"menu"* - Complete price list
+  ➤ *"book"* - Book appointment
+  ➤ *"location"* - Find nearest outlet
+
+What service are you interested in?`;
+    }
+    else if (!userContext && (messageTextLower.includes('franchise') || messageTextLower.includes('business') || messageTextLower === '2')) {
+      conversationContext.setUserContext(sessionId, conversationContext.IntentTypes.FRANCHISE);
+      replyText = franchiseService.getOverview();
+    }
     // PRIORITY 1: Direct commands (menu, help)
-    if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('all services')) {
+    else if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('all services')) {
       replyText = ResponseGenerator.getCompleteMenu();
+    }
+    // PRIORITY 1.5: Context-aware shortcuts (contact, location when user has context)
+    else if (messageTextLower.match(/\b(contact|call|phone|reach)\b/) && conversationContext.isInFranchiseFlow(sessionId)) {
+      // Auto-forward franchise enquiry to regional manager
+      try {
+        const result = await franchiseForwardingService.forwardFranchiseEnquiry(
+          sessionId, // Using sessionId as phone for testing
+          messageText,
+          'Test User'
+        );
+        
+        if (result.success && result.forwarded) {
+          replyText = `✅ *Your franchise enquiry has been forwarded!*\n\n` +
+            `🎯 Our ${result.regionalManager.region} regional manager will contact you within 24 hours.\n\n` +
+            `📋 *Your Enquiry ID:* ${result.leadId}\n` +
+            `👤 *Manager:* ${result.regionalManager.name}\n` +
+            `📞 *Contact:* ${result.regionalManager.phone}\n\n` +
+            `You can also reach them directly at the number above if urgent.\n\n` +
+            `Thank you for your interest in McKingstown franchise! 🏆`;
+        } else {
+          // Fallback if no regional manager available
+          replyText = franchiseService.getContactDetails();
+        }
+      } catch (error) {
+        console.error('❌ Error forwarding franchise enquiry:', error);
+        replyText = franchiseService.getContactDetails();
+      }
+    }
+    else if (messageTextLower.match(/\b(support|help|training|assistance)\b/) && conversationContext.isInFranchiseFlow(sessionId)) {
+      replyText = franchiseService.getSupportDetails();
+    }
+    else if (detectLocation(messageText) && conversationContext.isInFranchiseFlow(sessionId)) {
+      // User mentioned location in franchise context - auto-forward
+      const location = detectLocation(messageText);
+      try {
+        const result = await franchiseForwardingService.forwardFranchiseEnquiry(
+          sessionId,
+          `Interested in franchise for ${location}. ${messageText}`,
+          'Test User'
+        );
+        
+        if (result.success && result.forwarded) {
+          replyText = `✅ *Thank you for your interest in McKingstown franchise in ${location}!*\n\n` +
+            `🎯 Your enquiry has been forwarded to our ${result.regionalManager.region} regional manager.\n\n` +
+            `📋 *Enquiry ID:* ${result.leadId}\n` +
+            `👤 *Manager:* ${result.regionalManager.name}\n` +
+            `📞 *Contact:* ${result.regionalManager.phone}\n\n` +
+            `They will contact you within 24 hours to discuss the franchise opportunity in ${location}.\n\n` +
+            `🏆 McKingstown - India's Premier Men's Salon Franchise`;
+        } else {
+          // Fallback to showing info
+          replyText = franchiseService.getLocationResponse(location);
+        }
+      } catch (error) {
+        console.error('❌ Error forwarding location-based enquiry:', error);
+        replyText = franchiseService.getLocationResponse(location);
+      }
     }
     // PRIORITY 2: Pattern-based service detection (confidence > 0.5)
     else if (patternResult.confidence > 0.5) {
       const patternIntent = patternResult.intent;
       
       if (patternIntent === 'franchise') {
+        // Set franchise context if not already set
+        if (!conversationContext.isInFranchiseFlow(sessionId)) {
+          conversationContext.setUserContext(sessionId, conversationContext.IntentTypes.FRANCHISE);
+        }
+        
         if (messageTextLower.match(/\b(investment|cost|breakup|money|capital|fund)\b/)) {
           replyText = franchiseService.getInvestmentDetails();
         }
@@ -217,24 +303,20 @@ Please share your city name, and I'll help you find the closest branch.`;
         }
       }
       else if (intent.includes('Welcome') || intent === 'Greeting') {
-        replyText = `▸ *Welcome to McKingstown Men's Salon*
+        replyText = `▸ *Welcome to McKingstown Men's Salon* 💈
 
 India's Premier Grooming Destination
-*100+ Outlets | Now in Dubai*
+*134+ Outlets | 10+ Years Experience*
 
-▸ *For Customers:*
-  ➤ Type *"haircut"* - Haircut prices (₹75+)
-  ➤ Type *"beard"* - Beard services (₹40+)
-  ➤ Type *"facial"* - Facial services (₹300+)
-  ➤ Type *"menu"* - Complete price list
-  ➤ Type *"book"* - Book appointment
+Please choose what brings you here today:
 
-▸ *For Business Partners:*
-  ➤ Type *"franchise"* - Investment opportunity (₹19L)
+*1️⃣ SERVICES* - Haircuts, Beard, Spa, Facials
+   (For customers looking for grooming services)
 
-▸ 10+ years experience | Premium quality at affordable prices
+*2️⃣ FRANCHISE* - Business Opportunity
+   (For entrepreneurs interested in franchise)
 
-How can I assist you today?`;
+_Reply with *1* or *2* to continue_`;
       }
       else if (intent === 'Default Fallback Intent') {
         if (messageTextLower.match(/\b(price|cost|charge|rate|how much)\b/)) {

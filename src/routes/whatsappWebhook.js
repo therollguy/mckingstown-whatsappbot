@@ -167,13 +167,57 @@ What service are you interested in?`;
     }
     // PRIORITY 1.5: Context-aware shortcuts (contact, location when user has context)
     else if (messageTextLower.match(/\b(contact|call|phone|reach)\b/) && conversationContext.isInFranchiseFlow(userPhone)) {
-      // User is in franchise flow and wants contact - show franchise contact immediately
-      replyText = franchiseService.getContactDetails();
+      // User is in franchise flow and wants contact - automatically forward to regional manager
+      try {
+        const result = await franchiseForwardingService.forwardFranchiseEnquiry(
+          userPhone,
+          messageText,
+          userPhone // Using phone as name placeholder
+        );
+        
+        if (result.success && result.forwarded) {
+          replyText = `✅ *Your franchise enquiry has been forwarded!*\n\n` +
+            `🎯 Our ${result.regionalManager.region} regional manager will contact you within 24 hours.\n\n` +
+            `📋 *Your Enquiry ID:* ${result.leadId}\n` +
+            `👤 *Manager:* ${result.regionalManager.name}\n` +
+            `📞 *Contact:* ${result.regionalManager.phone}\n\n` +
+            `You can also reach them directly at the number above if urgent.\n\n` +
+            `Thank you for your interest in McKingstown franchise! 🏆`;
+        } else {
+          // Fallback if no regional manager available
+          replyText = franchiseService.getContactDetails();
+        }
+      } catch (error) {
+        console.error('❌ Error forwarding franchise enquiry:', error);
+        replyText = franchiseService.getContactDetails();
+      }
     }
     else if (detectLocation(messageText) && conversationContext.isInFranchiseFlow(userPhone)) {
-      // User is in franchise flow and mentioned a location - show franchise regional manager
+      // User is in franchise flow and mentioned a location - auto-forward to regional manager
       const location = detectLocation(messageText);
-      replyText = franchiseService.getLocationResponse(location);
+      try {
+        const result = await franchiseForwardingService.forwardFranchiseEnquiry(
+          userPhone,
+          `Interested in franchise for ${location}. ${messageText}`,
+          userPhone
+        );
+        
+        if (result.success && result.forwarded) {
+          replyText = `✅ *Thank you for your interest in McKingstown franchise in ${location}!*\n\n` +
+            `🎯 Your enquiry has been forwarded to our ${result.regionalManager.region} regional manager.\n\n` +
+            `📋 *Enquiry ID:* ${result.leadId}\n` +
+            `👤 *Manager:* ${result.regionalManager.name}\n` +
+            `📞 *Contact:* ${result.regionalManager.phone}\n\n` +
+            `They will contact you within 24 hours to discuss the franchise opportunity in ${location}.\n\n` +
+            `🏆 McKingstown - India's Premier Men's Salon Franchise`;
+        } else {
+          // Fallback to showing info
+          replyText = franchiseService.getLocationResponse(location);
+        }
+      } catch (error) {
+        console.error('❌ Error forwarding location-based enquiry:', error);
+        replyText = franchiseService.getLocationResponse(location);
+      }
     }
     // PRIORITY 2: Pattern-based service detection (confidence > 0.5)
     else if (patternResult.confidence > 0.5) {
