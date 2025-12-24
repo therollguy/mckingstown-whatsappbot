@@ -5,6 +5,7 @@ const ResponseGenerator = require('../utils/responseGenerator');
 const franchiseService = require('../services/franchiseService');
 const outletsData = require('../data/outlets');
 const llmService = require('../services/llmService');
+const patternMatcher = require('../utils/patternMatcher');
 
 /**
  * Detect date/time expressions in message
@@ -118,70 +119,80 @@ router.post('/test', async (req, res) => {
     let replyText;
     let llmDebug = null;
 
-    // PRIORITY 1: Check for explicit keywords first
+    // Check pattern matcher for intent detection
+    const patternResult = patternMatcher.match(messageText);
+    console.log('🎯 [TEST] Pattern Match:', {
+      intent: patternResult.intent,
+      confidence: patternResult.confidence,
+      matched: patternResult.matched
+    });
+
+    // PRIORITY 1: Direct commands (menu, help)
     if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('all services')) {
       replyText = ResponseGenerator.getCompleteMenu();
     }
-    // Check for franchise keywords
-    else if (messageTextLower.match(/\b(franchise|franchisee|partner|business opportunity|investment)\b/)) {
-      if (messageTextLower.match(/\b(investment|cost|breakup|money|capital|fund)\b/)) {
-        replyText = franchiseService.getInvestmentDetails();
+    // PRIORITY 2: Pattern-based service detection (confidence > 0.5)
+    else if (patternResult.confidence > 0.5) {
+      const patternIntent = patternResult.intent;
+      
+      if (patternIntent === 'franchise') {
+        if (messageTextLower.match(/\b(investment|cost|breakup|money|capital|fund)\b/)) {
+          replyText = franchiseService.getInvestmentDetails();
+        }
+        else if (messageTextLower.match(/\b(revenue|profit|roi|return|earn|income)\b/)) {
+          replyText = franchiseService.getRevenueProjections();
+        }
+        else if (messageTextLower.match(/\b(support|help|training|assistance)\b/)) {
+          replyText = franchiseService.getSupportDetails();
+        }
+        else if (messageTextLower.match(/\b(contact|call|phone|number|reach)\b/)) {
+          replyText = franchiseService.getContactDetails();
+        }
+        else if (messageText.match(/\b(chennai|bangalore|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra|telangana|rajasthan|west bengal)\b/i)) {
+          const location = messageText.match(/\b(chennai|bangalore|bengaluru|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|kochi|coimbatore|madurai|vijayawada|visakhapatnam|nagpur|nashik|thiruvananthapuram|mysore|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra pradesh|andhra|telangana|rajasthan|west bengal)\b/i)[0];
+          replyText = franchiseService.getLocationResponse(location);
+        }
+        else {
+          replyText = franchiseService.getOverview();
+        }
       }
-      else if (messageTextLower.match(/\b(revenue|profit|roi|return|earn|income)\b/)) {
-        replyText = franchiseService.getRevenueProjections();
+      else if (patternIntent === 'haircut') {
+        replyText = ResponseGenerator.getHaircutServices();
       }
-      else if (messageTextLower.match(/\b(support|help|training|assistance)\b/)) {
-        replyText = franchiseService.getSupportDetails();
+      else if (patternIntent === 'beard') {
+        replyText = ResponseGenerator.getBeardServices();
       }
-      else if (messageTextLower.match(/\b(contact|call|phone|number|reach)\b/)) {
-        replyText = franchiseService.getContactDetails();
+      else if (patternIntent === 'facial') {
+        replyText = ResponseGenerator.getFacialServices();
       }
-      else if (messageText.match(/\b(chennai|bangalore|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra|telangana|rajasthan|west bengal)\b/i)) {
-        const location = messageText.match(/\b(chennai|bangalore|bengaluru|mumbai|delhi|hyderabad|pune|ahmedabad|surat|kolkata|jaipur|kochi|coimbatore|madurai|vijayawada|visakhapatnam|nagpur|nashik|thiruvananthapuram|mysore|tamil nadu|karnataka|maharashtra|gujarat|kerala|andhra pradesh|andhra|telangana|rajasthan|west bengal)\b/i)[0];
-        replyText = franchiseService.getLocationResponse(location);
+      else if (patternIntent === 'spa') {
+        replyText = ResponseGenerator.getHairSpaServices();
       }
-      else {
-        replyText = franchiseService.getOverview();
+      else if (patternIntent === 'color') {
+        replyText = ResponseGenerator.getColorServices();
+      }
+      else if (patternIntent === 'wedding') {
+        replyText = ResponseGenerator.getWeddingPackages();
+      }
+      else if (patternIntent === 'massage') {
+        replyText = ResponseGenerator.getMassageServices();
+      }
+      else if (patternIntent === 'price') {
+        replyText = `I can help you with pricing.\n\n➤ Haircut - ₹75\n➤ Beard - ₹40\n➤ Facial - ₹300\n➤ Hair Spa - ₹400\n\nType *\"menu\"* for complete list.`;
+      }
+      else if (patternIntent === 'timing') {
+        replyText = `▸ *Opening Hours*\n\n▸ Mon-Sat: 9 AM - 9 PM\n▸ Sunday: 10 AM - 8 PM\n\nOpen 7 days a week!`;
+      }
+      else if (patternIntent === 'location') {
+        const detectedCity = detectLocation(messageText);
+        replyText = detectedCity ? franchiseService.getOutletsByLocation(detectedCity) : `We have ${outletsData.totalOutlets}+ outlets.\n\nShare your city to find nearest outlet.\n\n*Cities:* Chennai, Bangalore, Coimbatore, Dubai & more`;
+      }
+      else if (patternIntent === 'booking') {
+        replyText = `▸ *Book Your Appointment*\n\nShare:\n1. Date & time\n2. Your city\n\nWe'll confirm shortly.`;
       }
     }
-    // Check for specific service keywords
-    else if (messageTextLower.match(/\b(haircut|hair cut|cut|hairstyle)\b/)) {
-      replyText = ResponseGenerator.getHaircutServices();
-    }
-    else if (messageTextLower.match(/\b(beard|mustache|moustache|shave|trim)\b/)) {
-      replyText = ResponseGenerator.getBeardServices();
-    }
-    else if (messageTextLower.match(/\b(facial|face care|skin care|cleanup|clean up)\b/)) {
-      replyText = ResponseGenerator.getFacialServices();
-    }
-    else if (messageTextLower.match(/\b(spa|hair spa|scalp treatment)\b/)) {
-      replyText = ResponseGenerator.getHairSpaServices();
-    }
-    else if (messageTextLower.match(/\b(color|colour|dye|highlight|streak)\b/)) {
-      replyText = ResponseGenerator.getColorServices();
-    }
-    else if (messageTextLower.match(/\b(wedding|marriage|groom package|bridal)\b/)) {
-      replyText = ResponseGenerator.getWeddingPackages();
-    }
-    else if (messageTextLower.match(/\b(massage|head massage|oil massage)\b/)) {
-      replyText = ResponseGenerator.getMassageServices();
-    }
-    else if (messageTextLower.match(/\b(makeup|grooming|event styling)\b/)) {
-      replyText = ResponseGenerator.getGroomServices();
-    }
-    else if (messageTextLower.match(/\b(book|appointment|booking|schedule|reserve)\b/)) {
-      replyText = `▸ *Book Your Appointment*
-
-I can help you book an appointment.
-
-Please share:
-1. Your preferred date & time
-2. Your city/location
-
-We'll confirm your booking shortly.`;
-    }
-    // PRIORITY 2: High confidence Dialogflow intents (ignore Dialogflow's Default Fallback Intent)
-    else if (intent && confidence > 0.6 && intent !== 'Default Fallback Intent') {
+    // PRIORITY 3: High confidence Dialogflow (conversational intents)
+    else if (intent && confidence > 0.7 && intent !== 'Default Fallback Intent') {
       if (intent === 'Timing') {
         replyText = `▸ *McKingstown Opening Hours*
 
