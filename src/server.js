@@ -9,6 +9,7 @@ dotenv.config();
 const whatsappWebhook = require('./routes/whatsappWebhook');
 const dialogflowWebhook = require('./routes/dialogflowWebhook');
 const testingWebhook = require('./routes/testingWebhook');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,6 +40,9 @@ app.use('/webhook', testingWebhook);
 
 // Dialogflow webhook route (for fulfillment)
 app.use('/webhook', dialogflowWebhook);
+
+// Dashboard routes (Lead tracking & management)
+app.use('/dashboard', dashboardRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

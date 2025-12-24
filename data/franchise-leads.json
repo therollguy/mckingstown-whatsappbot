@@ -1,0 +1,28 @@
+{
+  "leads": [
+    {
+      "id": "LEAD-1766556202982-7ylf9uyts",
+      "customerPhone": "+919999999999",
+      "customerName": "Test Customer",
+      "location": "Chennai",
+      "enquiryType": "investment",
+      "enquiryMessage": "This is a test franchise enquiry",
+      "interestedIn": [
+        "Franchise Opportunity"
+      ],
+      "status": "new",
+      "source": "whatsapp_bot",
+      "assignedTo": null,
+      "regionalAdvisor": null,
+      "forwardedAt": null,
+      "createdAt": "2025-12-24T06:03:22.982Z",
+      "updatedAt": "2025-12-24T06:03:22.982Z",
+      "notes": []
+    }
+  ],
+  "metadata": {
+    "totalLeads": 1,
+    "lastUpdated": "2025-12-24T06:03:22.982Z",
+    "version": "1.0"
+  }
+}

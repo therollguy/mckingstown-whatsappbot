@@ -15,6 +15,7 @@ const ConversationalHelper = require('../utils/conversationalHelper');
 const outletsData = require('../data/outlets');
 const llmService = require('../services/llmService');
 const patternMatcher = require('../utils/patternMatcher');
+const franchiseForwardingService = require('../services/franchiseForwardingService');
 
 /**
  * Detect date/time expressions in message
@@ -144,7 +145,41 @@ router.post('/whatsapp', async (req, res) => {
       const patternIntent = patternResult.intent;
       
       if (patternIntent === 'franchise') {
-        // Franchise sub-queries
+        // Auto-forward franchise enquiry to regional advisor and log in dashboard
+        try {
+          console.log('🚨 Franchise enquiry detected - initiating forwarding process');
+          
+          // Forward enquiry in background (don't wait for it)
+          franchiseForwardingService.forwardFranchiseEnquiry(
+            From.replace('whatsapp:', ''),
+            messageText,
+            ProfileName || 'Unknown'
+          ).then(result => {
+            if (result.success && result.forwarded) {
+              console.log(`✅ Franchise enquiry forwarded successfully. Lead ID: ${result.lead.id}`);
+              // Send confirmation to customer
+              franchiseForwardingService.sendCustomerConfirmation(
+                From.replace('whatsapp:', ''),
+                result.lead.id,
+                true
+              );
+            } else if (result.success && !result.forwarded) {
+              console.log(`📊 Franchise enquiry logged. Lead ID: ${result.lead.id}`);
+              // Send acknowledgment to customer
+              franchiseForwardingService.sendCustomerConfirmation(
+                From.replace('whatsapp:', ''),
+                result.lead.id,
+                false
+              );
+            }
+          }).catch(error => {
+            console.error('❌ Error in franchise forwarding:', error);
+          });
+        } catch (error) {
+          console.error('❌ Error initiating franchise forwarding:', error);
+        }
+        
+        // Franchise sub-queries - provide immediate response to customer
         if (messageTextLower.match(/\b(investment|cost|breakup|money|capital|fund)\b/)) {
           replyText = franchiseService.getInvestmentDetails();
         }
