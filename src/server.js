@@ -42,7 +42,7 @@ app.use('/webhook', testingWebhook);
 app.use('/webhook', dialogflowWebhook);
 
 // Dashboard routes (Lead tracking & management)
-app.use('/dashboard', dashboardRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

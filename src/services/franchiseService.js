@@ -432,13 +432,7 @@ Type *"franchise"* for investment details!`;
    * Generate response for location-specific inquiry
    */
   getLocationResponse(location) {
-    // First try to find existing outlets
-    const outletsResponse = this.getOutletsByLocation(location);
-    if (outletsResponse) {
-      return outletsResponse;
-    }
-
-    // If no outlets, provide franchise information
+    // For franchise enquiries, provide franchise officer information, not outlets
     const officer = this.findOfficer(location);
 
     if (!officer) {
@@ -458,7 +452,7 @@ Type *"franchise"* for complete details!`;
 
 ▸ *${officer.name}*
 ▸ ${officer.state}
-Mobile: *WhatsApp:* ${officer.phone}
+Mobile: *${officer.phone}*
 
 They will help you with:
 ▸ Investment details & ROI

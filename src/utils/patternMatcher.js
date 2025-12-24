@@ -58,10 +58,10 @@ class PatternMatcher {
       },
       
       franchise: {
-        exact: ['franchise', 'franchisee', 'business', 'partner', 'investment', 'opportunity'],
-        typos: ['franchice', 'francise', 'partener'],
-        related: ['business opportunity', 'investment opportunity', 'partnership', 'entrepreneur'],
-        questions: ['franchise cost', 'how to start franchise', 'franchise investment', 'franchise details']
+        exact: ['franchise', 'franchisee', 'business', 'partner', 'investment', 'opportunity', 'create franchise', 'start franchise', 'need franchise', 'want franchise', 'open franchise'],
+        typos: ['franchice', 'francise', 'partener', 'oportunity'],
+        related: ['business opportunity', 'investment opportunity', 'partnership', 'entrepreneur', 'franchise opportunity', 'become franchisee'],
+        questions: ['franchise cost', 'how to start franchise', 'franchise investment', 'franchise details', 'how to create franchise', 'how to open franchise']
       },
       
       // Query type patterns
