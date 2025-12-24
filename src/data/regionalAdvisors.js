@@ -8,14 +8,14 @@
 const regionalAdvisors = {
   // South India
   southIndia: {
-    name: "Regional Franchise Advisor - South India",
-    whatsappNumber: +918608334398, // Will be updated: Format: +919XXXXXXXXX
+    name: "Naresh",
+    whatsappNumber: +918608334398, // Format: +919XXXXXXXXX
     coverageAreas: [
       "Tamil Nadu", "Kerala", "Karnataka", "Andhra Pradesh", "Telangana", "Puducherry",
       "Chennai", "Bangalore", "Hyderabad", "Coimbatore", "Madurai", "Kochi", "Mysore",
       "Vijayawada", "Visakhapatnam", "Thiruvananthapuram", "Salem", "Trichy"
     ],
-    active: true // Set to true when WhatsApp number is configured
+    active: true
   },
 
   // West India
