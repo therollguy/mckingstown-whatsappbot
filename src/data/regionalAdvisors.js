@@ -9,7 +9,7 @@ const regionalAdvisors = {
   // South India
   southIndia: {
     name: "Naresh",
-    whatsappNumber: +918608334398, // Format: +919XXXXXXXXX
+    whatsappNumber: "+918608334398", // Format: +919XXXXXXXXX
     coverageAreas: [
       "Tamil Nadu", "Kerala", "Karnataka", "Andhra Pradesh", "Telangana", "Puducherry",
       "Chennai", "Bangalore", "Hyderabad", "Coimbatore", "Madurai", "Kochi", "Mysore",

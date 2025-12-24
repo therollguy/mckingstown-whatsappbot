@@ -159,59 +159,119 @@ What service are you interested in?`;
     }
     // PRIORITY 1.5: Context-aware shortcuts (contact, location when user has context)
     else if (messageTextLower.match(/\b(contact|call|phone|reach)\b/) && conversationContext.isInFranchiseFlow(sessionId)) {
-      // Auto-forward franchise enquiry to regional manager
-      try {
-        const result = await franchiseForwardingService.forwardFranchiseEnquiry(
-          sessionId, // Using sessionId as phone for testing
-          messageText,
-          'Test User'
-        );
-        
-        if (result.success && result.forwarded) {
-          replyText = `✅ *Your franchise enquiry has been forwarded!*\n\n` +
-            `🎯 Our ${result.regionalManager.region} regional manager will contact you within 24 hours.\n\n` +
-            `📋 *Your Enquiry ID:* ${result.leadId}\n` +
-            `👤 *Manager:* ${result.regionalManager.name}\n` +
-            `📞 *Contact:* ${result.regionalManager.phone}\n\n` +
-            `You can also reach them directly at the number above if urgent.\n\n` +
-            `Thank you for your interest in McKingstown franchise! 🏆`;
-        } else {
-          // Fallback if no regional manager available
-          replyText = franchiseService.getContactDetails();
-        }
-      } catch (error) {
-        console.error('❌ Error forwarding franchise enquiry:', error);
-        replyText = franchiseService.getContactDetails();
-      }
+      // Start collecting franchise enquiry details
+      conversationContext.updateUserContext(sessionId, {
+        stage: conversationContext.FranchiseStages.COLLECTING_NAME,
+        phone: sessionId
+      });
+      
+      replyText = `🎯 *Great! Let me connect you with our franchise team.*\n\n` +
+        `To help us serve you better, I need a few quick details:\n\n` +
+        `📝 *Step 1/3:* Please share your *full name*`;
     }
     else if (messageTextLower.match(/\b(support|help|training|assistance)\b/) && conversationContext.isInFranchiseFlow(sessionId)) {
       replyText = franchiseService.getSupportDetails();
     }
-    else if (detectLocation(messageText) && conversationContext.isInFranchiseFlow(sessionId)) {
-      // User mentioned location in franchise context - auto-forward
+    else if (detectLocation(messageText) && conversationContext.isInFranchiseFlow(sessionId) && !conversationContext.isCollectingFranchiseData(sessionId)) {
+      // User mentioned location - start data collection
       const location = detectLocation(messageText);
-      try {
-        const result = await franchiseForwardingService.forwardFranchiseEnquiry(
-          sessionId,
-          `Interested in franchise for ${location}. ${messageText}`,
-          'Test User'
-        );
+      conversationContext.updateUserContext(sessionId, {
+        stage: conversationContext.FranchiseStages.COLLECTING_NAME,
+        phone: sessionId,
+        preferredLocation: location
+      });
+      
+      replyText = `🎯 *Excellent! You're interested in ${location}.*\n\n` +
+        `Let me gather some details to connect you with our ${location} franchise team:\n\n` +
+        `📝 *Step 1/3:* Please share your *full name*`;
+    }
+    // PRIORITY 1.6: Handle franchise data collection flow
+    else if (conversationContext.isCollectingFranchiseData(sessionId)) {
+      const context = conversationContext.getUserContext(sessionId);
+      const stage = context.data.stage;
+      
+      if (stage === conversationContext.FranchiseStages.COLLECTING_NAME) {
+        conversationContext.updateUserContext(sessionId, {
+          name: messageText.trim(),
+          stage: conversationContext.FranchiseStages.COLLECTING_LOCATION
+        });
         
-        if (result.success && result.forwarded) {
-          replyText = `✅ *Thank you for your interest in McKingstown franchise in ${location}!*\n\n` +
-            `🎯 Your enquiry has been forwarded to our ${result.regionalManager.region} regional manager.\n\n` +
-            `📋 *Enquiry ID:* ${result.leadId}\n` +
-            `👤 *Manager:* ${result.regionalManager.name}\n` +
-            `📞 *Contact:* ${result.regionalManager.phone}\n\n` +
-            `They will contact you within 24 hours to discuss the franchise opportunity in ${location}.\n\n` +
-            `🏆 McKingstown - India's Premier Men's Salon Franchise`;
-        } else {
-          // Fallback to showing info
-          replyText = franchiseService.getLocationResponse(location);
+        replyText = `Thank you, *${messageText.trim()}*! 👍\n\n` +
+          `📝 *Step 2/3:* Which *city* are you interested in opening the franchise?`;
+      }
+      else if (stage === conversationContext.FranchiseStages.COLLECTING_LOCATION) {
+        conversationContext.updateUserContext(sessionId, {
+          preferredLocation: messageText.trim(),
+          stage: conversationContext.FranchiseStages.COLLECTING_EMAIL
+        });
+        
+        replyText = `Perfect! *${messageText.trim()}* is a great location. 📍\n\n` +
+          `📝 *Step 3/3:* Please share your *email address* (or type "skip" if you don't have one)`;
+      }
+      else if (stage === conversationContext.FranchiseStages.COLLECTING_EMAIL) {
+        const email = messageTextLower === 'skip' ? 'Not provided' : messageText.trim();
+        conversationContext.updateUserContext(sessionId, {
+          email: email,
+          stage: conversationContext.FranchiseStages.COLLECTING_DETAILS
+        });
+        
+        replyText = `Great! 📧\n\n` +
+          `📝 *Final Step:* Any specific questions or requirements? (or type "done" to submit)`;
+      }
+      else if (stage === conversationContext.FranchiseStages.COLLECTING_DETAILS) {
+        const additionalDetails = messageTextLower === 'done' ? 'None' : messageText.trim();
+        
+        try {
+          const enquiryData = context.data;
+          
+          // Validate that we have the required data
+          if (!enquiryData || !enquiryData.name || !enquiryData.preferredLocation) {
+            replyText = `Sorry, there was an issue with your enquiry data. Please start over by typing "franchise" and "contact" again.`;
+            conversationContext.clearUserContext(sessionId);
+            return;
+          }
+          
+          const fullMessage = `Franchise Enquiry:\n` +
+            `Name: ${enquiryData.name}\n` +
+            `Location: ${enquiryData.preferredLocation}\n` +
+            `Email: ${enquiryData.email || 'Not provided'}\n` +
+            `Phone: ${sessionId}\n` +
+            `Details: ${additionalDetails}`;
+          
+          const result = await franchiseForwardingService.forwardFranchiseEnquiry(
+            sessionId,
+            fullMessage,
+            enquiryData.name
+          );
+          
+          if (result.success && result.forwarded) {
+            replyText = `✅ *Perfect! Your enquiry has been submitted!*\n\n` +
+              `🎯 *Your Details:*\n` +
+              `👤 Name: ${enquiryData.name}\n` +
+              `📍 Location: ${enquiryData.preferredLocation}\n` +
+              `📧 Email: ${enquiryData.email || 'Not provided'}\n\n` +
+              `📋 *Enquiry ID:* ${result.lead.id}\n` +
+              `👔 *Assigned Manager:* ${result.advisor.name}\n` +
+              `📞 *Manager Contact:* ${result.advisor.whatsappNumber}\n\n` +
+              `⏰ Our ${result.advisor.region} franchise manager will contact you within 24 hours.\n\n` +
+              `🏆 Thank you for your interest in McKingstown franchise!`;
+            
+            conversationContext.clearUserContext(sessionId);
+            conversationContext.setUserContext(sessionId, conversationContext.IntentTypes.FRANCHISE);
+          } else {
+            replyText = `✅ *Thank you! Your enquiry has been recorded.*\n\n` +
+              `📋 *Reference ID:* ${result.lead.id}\n\n` +
+              `Our team will review and contact you within 24-48 hours.\n\n` +
+              `📞 For immediate assistance: +91 8939000150`;
+            
+            conversationContext.clearUserContext(sessionId);
+            conversationContext.setUserContext(sessionId, conversationContext.IntentTypes.FRANCHISE);
+          }
+        } catch (error) {
+          console.error('❌ Error submitting franchise enquiry:', error);
+          replyText = `Sorry, there was an error submitting your enquiry. Please try again or call us directly at +91 8939000150`;
+          conversationContext.clearUserContext(sessionId);
         }
-      } catch (error) {
-        console.error('❌ Error forwarding location-based enquiry:', error);
-        replyText = franchiseService.getLocationResponse(location);
       }
     }
     // PRIORITY 2: Pattern-based service detection (confidence > 0.5)

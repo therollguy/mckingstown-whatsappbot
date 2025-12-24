@@ -19,6 +19,17 @@ const IntentTypes = {
 };
 
 /**
+ * Franchise data collection stages
+ */
+const FranchiseStages = {
+  COLLECTING_NAME: 'collecting_name',
+  COLLECTING_LOCATION: 'collecting_location',
+  COLLECTING_EMAIL: 'collecting_email',
+  COLLECTING_DETAILS: 'collecting_details',
+  READY_TO_FORWARD: 'ready_to_forward'
+};
+
+/**
  * Set user's conversation context
  */
 function setUserContext(phoneNumber, intent, data = {}) {
@@ -98,8 +109,25 @@ function isInServicesFlow(phoneNumber) {
   return getUserIntent(phoneNumber) === IntentTypes.SERVICES;
 }
 
+/**
+ * Check if user is in franchise data collection
+ */
+function isCollectingFranchiseData(phoneNumber) {
+  const context = getUserContext(phoneNumber);
+  return context && context.intent === IntentTypes.FRANCHISE && context.data && context.data.stage;
+}
+
+/**
+ * Get franchise data collection stage
+ */
+function getFranchiseStage(phoneNumber) {
+  const context = getUserContext(phoneNumber);
+  return context && context.data ? context.data.stage : null;
+}
+
 module.exports = {
   IntentTypes,
+  FranchiseStages,
   setUserContext,
   getUserContext,
   updateUserContext,
@@ -107,5 +135,7 @@ module.exports = {
   hasUserContext,
   getUserIntent,
   isInFranchiseFlow,
-  isInServicesFlow
+  isInServicesFlow,
+  isCollectingFranchiseData,
+  getFranchiseStage
 };

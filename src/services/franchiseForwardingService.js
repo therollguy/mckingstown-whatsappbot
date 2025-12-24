@@ -216,9 +216,15 @@ async function forwardFranchiseEnquiry(customerPhone, customerMessage, customerN
       throw new Error('Twilio WhatsApp number not configured in environment variables');
     }
     
+    const toNumber = `whatsapp:${advisor.whatsappNumber}`;
+    console.log(`📤 Sending WhatsApp message:`);
+    console.log(`   From: ${fromNumber}`);
+    console.log(`   To: ${toNumber}`);
+    console.log(`   Advisor: ${advisor.name}`);
+    
     const message = await client.messages.create({
       from: fromNumber,
-      to: `whatsapp:${advisor.whatsappNumber}`,
+      to: toNumber,
       body: forwardMessage
     });
 
