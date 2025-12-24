@@ -165,6 +165,16 @@ What service are you interested in?`;
     else if (messageTextLower.includes('menu') || messageTextLower.includes('price list') || messageTextLower.includes('all services')) {
       replyText = ResponseGenerator.getCompleteMenu();
     }
+    // PRIORITY 1.5: Context-aware shortcuts (contact, location when user has context)
+    else if (messageTextLower.match(/\b(contact|call|phone|reach)\b/) && conversationContext.isInFranchiseFlow(userPhone)) {
+      // User is in franchise flow and wants contact - show franchise contact immediately
+      replyText = franchiseService.getContactDetails();
+    }
+    else if (detectLocation(messageText) && conversationContext.isInFranchiseFlow(userPhone)) {
+      // User is in franchise flow and mentioned a location - show franchise regional manager
+      const location = detectLocation(messageText);
+      replyText = franchiseService.getLocationResponse(location);
+    }
     // PRIORITY 2: Pattern-based service detection (confidence > 0.5)
     else if (patternResult.confidence > 0.5) {
       const patternIntent = patternResult.intent;
