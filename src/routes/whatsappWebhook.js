@@ -426,11 +426,23 @@ Please share your city name, and I'll help you find the nearest McKingstown outl
         replyText = `Thank you for choosing McKingstown. Have a great day!\n\nFeel free to reach out anytime.\n\nVisit us: www.mckingstown.com`;
       }
       else if (messageTextLower.match(/\b(contact|phone|call|reach)\b/)) {
-        const detectedCity = detectLocation(messageText);
-        if (detectedCity) {
-          replyText = franchiseService.getOutletsByLocation(detectedCity);
+        // Context-aware contact handling
+        if (conversationContext.isInFranchiseFlow(userPhone)) {
+          // User is in franchise context - show franchise contact info
+          replyText = franchiseService.getContactDetails();
         } else {
-          replyText = `\u25b8 *Contact McKingstown*\n\nShare your city name to get outlet addresses & phone numbers.\n\nFor franchise: Type *\"franchise\"*\n\nWhich city are you in?`;
+          const detectedCity = detectLocation(messageText);
+          if (detectedCity) {
+            replyText = franchiseService.getOutletsByLocation(detectedCity);
+          } else {
+            replyText = `▸ *Contact McKingstown*
+
+Share your city name to get outlet addresses & phone numbers.
+
+For franchise: Type *"franchise"*
+
+Which city are you in?`;
+          }
         }
       }
       // PRIORITY 5: Gemini AI fallback for complex queries

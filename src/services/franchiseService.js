@@ -208,7 +208,7 @@ class FranchiseService {
 *Your Investment, Our Commitment*
 
 ▸ *About Us:*
-  ➤ 100+ outlets across India + Dubai
+  ➤ 134+ outlets across India + Dubai
   ➤ 10+ years of grooming industry experience
   ➤ Premium grooming at affordable prices
   ➤ Expert professionals & academy training
@@ -223,13 +223,19 @@ class FranchiseService {
 
 ▸ *Location: Minimum 500 sq.ft, Ground floor*
 
-Type *"investment"* for detailed breakup
-Type *"revenue"* for profit projections
-Type *"support"* for franchise support
-Type *"contact"* to connect with team
+━━━━━━━━━━━━━━━━━━━━━━━
 
-Tel: Call: +91 8939000150
-Web: www.mckingstown.com`;
+*What would you like to know?*
+
+Type *"investment"* for detailed breakup
+Type *"revenue"* for profit projections  
+Type *"support"* for franchise support
+Type *"contact"* to connect with regional manager
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 Head Office: +91 8939000150
+🌐 Web: www.mckingstown.com`;
   }
 
   /**
@@ -309,22 +315,34 @@ Web: www.mckingstown.com`;
    * Get contact details
    */
   getContactDetails() {
-    return `Tel: *GET IN TOUCH WITH US*
+    return `═══ *CONNECT WITH FRANCHISE TEAM*
 
-*${this.data.contact.company}*
-
-▸ *Head Office:*
+*Head Office:*
+${this.data.contact.company}
 ${this.data.contact.address}
 Tamil Nadu, India
 ${this.data.contact.landmark}
 
-Mobile: *Phone:* ${this.data.contact.phone}
-Email: *Email:* ${this.data.contact.email}
-Web: *Website:* ${this.data.contact.website}
-📲 *Social Media:* ${this.data.contact.social}
+📞 Phone: *${this.data.contact.phone}*
+📧 Email: *${this.data.contact.email}*
+🌐 Website: *${this.data.contact.website}*
+📲 Social: ${this.data.contact.social}
 
-*For State-Specific Queries:*
-Please share your state/city, and I'll connect you with the regional franchise manager! ═══`;
+━━━━━━━━━━━━━━━━━━━━━━━
+
+*Regional Franchise Managers:*
+
+To connect with your regional manager, please share your state or city:
+
+▸ Example: "Tamil Nadu", "Chennai", "Karnataka", "Bangalore"
+
+I'll instantly connect you with the right person for your location! 🎯
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+Type *"investment"* for cost details
+Type *"revenue"* for profit projections
+Type your *city/state* to connect with regional manager`;
   }
 
   /**
