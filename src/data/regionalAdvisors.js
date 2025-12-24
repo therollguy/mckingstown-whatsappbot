@@ -15,7 +15,7 @@ const regionalAdvisors = {
       "Chennai", "Bangalore", "Hyderabad", "Coimbatore", "Madurai", "Kochi", "Mysore",
       "Vijayawada", "Visakhapatnam", "Thiruvananthapuram", "Salem", "Trichy"
     ],
-    active: false // Set to true when WhatsApp number is configured
+    active: true // Set to true when WhatsApp number is configured
   },
 
   // West India
